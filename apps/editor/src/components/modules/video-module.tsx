@@ -15,7 +15,7 @@ function VideoModule() {
     const params = new URLSearchParams(window.location.search);
     const hasLocalRecording = params.get("localRecording");
 
-    console.log(hasLocalRecording)
+    console.log(hasLocalRecording);
 
     if (hasLocalRecording) {
       const recordingDataString = localStorage.getItem("recordingData");

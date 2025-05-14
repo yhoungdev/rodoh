@@ -1,53 +1,50 @@
-import React from 'react';
-import { ButtonHTMLAttributes } from 'react';
+import React from "react";
+import { ButtonHTMLAttributes } from "react";
 
 interface IButton extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
-  variant?: 'primary' | 'secondary' | 'danger';
-  size?: 'sm' | 'md' | 'lg';
+  variant?: "primary" | "secondary" | "danger";
+  size?: "sm" | "md" | "lg";
   fullWidth?: boolean;
   isLoading?: boolean;
 }
 
 const Button = ({
   children,
-  variant = 'primary',
-  size = 'md',
+  variant = "primary",
+  size = "md",
   fullWidth = false,
   isLoading = false,
-  className = '',
+  className = "",
   disabled,
   ...props
 }: IButton) => {
-  const baseStyles = ' cursor-pointer rounded-lg font-medium transition-colors duration-200';
-  
+  const baseStyles =
+    " cursor-pointer rounded-lg font-medium transition-colors duration-200";
+
   const variants = {
-    primary: 'bg-red-600 hover:bg-gray-800 text-white',
-    secondary: 'bg-gray-200 hover:bg-gray-300 text-gray-800',
-    danger: 'bg-red-500 hover:bg-red-600 text-white'
+    primary: "bg-red-600 hover:bg-gray-800 text-white",
+    secondary: "bg-gray-200 hover:bg-gray-300 text-gray-800",
+    danger: "bg-red-500 hover:bg-red-600 text-white",
   };
 
   const sizes = {
-    sm: 'px-3 py-1.5 text-sm',
-    md: 'px-4 py-2 text-base',
-    lg: 'px-6 py-3 text-lg'
+    sm: "px-3 py-1.5 text-sm",
+    md: "px-4 py-2 text-base",
+    lg: "px-6 py-3 text-lg",
   };
 
   const classes = [
     baseStyles,
     variants[variant],
     sizes[size],
-    fullWidth ? 'w-full' : '',
-    disabled || isLoading ? 'opacity-50 cursor-not-allowed' : '',
-    className
-  ].join(' ');
+    fullWidth ? "w-full" : "",
+    disabled || isLoading ? "opacity-50 cursor-not-allowed" : "",
+    className,
+  ].join(" ");
 
   return (
-    <button
-      className={classes}
-      disabled={disabled || isLoading}
-      {...props}
-    >
+    <button className={classes} disabled={disabled || isLoading} {...props}>
       {isLoading ? (
         <div className="flex items-center justify-center">
           <svg className="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24">

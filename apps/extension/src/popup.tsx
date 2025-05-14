@@ -5,5 +5,5 @@ import Popup from "./pages/Popup";
 ReactDOM.createRoot(document.body).render(
   <React.StrictMode>
     <Popup />
-  </React.StrictMode>
+  </React.StrictMode>,
 );

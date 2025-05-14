@@ -1,4 +1,4 @@
-import Dexie from 'dexie';
+import Dexie from "dexie";
 
 export interface Recording {
   id: string;
@@ -10,12 +10,12 @@ class RecordingDB extends Dexie {
   recordings: Dexie.Table<Recording, string>;
 
   constructor() {
-    super('RecordingDB');
+    super("RecordingDB");
     this.version(1).stores({
-      recordings: '&id, createdAt',
+      recordings: "&id, createdAt",
     });
 
-    this.recordings = this.table('recordings');
+    this.recordings = this.table("recordings");
   }
 }
 
