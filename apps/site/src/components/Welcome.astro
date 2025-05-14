@@ -1,0 +1,122 @@
+---
+import Image from 'astro/components/Image.astro';
+---
+
+<section class="hero-section">
+  <div class="container">
+    <div class="content">
+      <h1>
+        Create stunning screen
+        <span class="gradient-text">recordings</span>
+        with zoom & pan magic
+        🪄
+      </h1>
+
+      <p class="subtitle">
+        Simple, fast, and powerful screen recording for everyone. Zoom, pan, and share in crystal clear quality — zero hassle.
+      </p>
+      <div class="cta-buttons">
+		  <Image src='/chrome-web-store.svg'
+				 width="50" height="50"
+		  	alt="Chrome Web Store"/>
+        <a href="#download" class="primary-button">
+          Download Extension
+        </a>
+   
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero-section {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    background: linear-gradient(
+      to bottom right,
+      rgba(30, 41, 59, 0.95),
+      rgba(15, 23, 42, 0.95)
+    );
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  .content {
+    max-width: 800px;
+    text-align: center;
+    margin: 0 auto;
+  }
+
+  h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: white;
+    margin-bottom: 1.5rem;
+  }
+
+  .gradient-text {
+    background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .subtitle {
+    font-size: 1.15rem;
+    color: #94a3b8;
+    margin-bottom: 2.5rem;
+    line-height: 1.6;
+  }
+
+  .cta-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+  }
+
+  .primary-button {
+    background: linear-gradient(45deg, #FF6B6B, #FF8E53);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    transition: transform 0.2s;
+    text-decoration: none;
+  }
+
+  .secondary-button {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    transition: transform 0.2s;
+    text-decoration: none;
+  }
+
+  .primary-button:hover,
+  .secondary-button:hover {
+    transform: translateY(-2px);
+  }
+
+  @media (max-width: 768px) {
+    h1 {
+      font-size: 2.5rem;
+    }
+
+    .subtitle {
+      font-size: 1rem;
+    }
+
+    .cta-buttons {
+      flex-direction: column;
+    }
+  }
+</style>
+

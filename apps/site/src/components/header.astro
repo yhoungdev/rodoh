@@ -1,0 +1,83 @@
+---
+import Image from "astro/components/Image.astro";
+
+
+---
+
+<header class="header">
+  <div class="container">
+    <nav>
+      <a href="/" class="logo">
+        <Image src="/logo/16.png"  width={50} height={50}
+          alt="logo" style={
+            {
+              borderRadius: '5px'
+            }
+        } />
+      </a>
+
+      <!--<div class="nav-links">-->
+      <!--  <a href="#features">Features</a>-->
+      <!--  <a href="#pricing">Pricing</a>-->
+      <!--  -->
+      <!--</div>-->
+
+      <!--<div class="auth-buttons">-->
+      <!--  <a href="/login" class="btn btn-secondary">Log in</a>-->
+      <!--  <a href="/signup" class="btn btn-primary">Get Started</a>-->
+      <!--</div>-->
+    </nav>
+  </div>
+</header>
+
+<style>
+  .header {
+    padding: 1rem 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    //background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(8px);
+    z-index: 50;
+  }
+
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+  }
+
+  .nav-links a {
+    color: #64748b;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+  }
+
+  .nav-links a:hover {
+    color: var(--primary);
+  }
+
+  .auth-buttons {
+    display: flex;
+    gap: 1rem;
+  }
+
+  @media (max-width: 768px) {
+    .nav-links {
+      display: none;
+    }
+  }
+</style>

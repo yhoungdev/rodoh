@@ -1,0 +1,6 @@
+html {
+  cursor: url("../public/cursor.png"), auto;
+}
+body {
+  background-color: rgba(244, 244, 244, 0.9);
+}

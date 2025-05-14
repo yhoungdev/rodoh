@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+html,
+body {
+
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  background-color: rgb(36, 36, 36);
+  padding: 1em;
+}
+
+
+.zoom-overlay {
+  will-change: transform;
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+@keyframes zoomPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.5); }
+  100% { transform: scale(1); }
+}

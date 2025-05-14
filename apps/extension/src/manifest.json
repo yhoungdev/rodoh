@@ -1,0 +1,38 @@
+{
+  "name": "Rodoh",
+  "description": "A simple and light weight screen recorded with zooming and panning. 🌶️",
+  "{{chrome}}.manifest_version": 3,
+  "icons": {
+
+    "32": "icon/32.png",
+    "48": "icon/48.png",
+    "96": "icon/96.png",
+    "128": "icon/128.png"
+  },
+ 
+  "{{firefox}}.browser_action": {
+    "default_title": "Open Rodoh"
+  },
+  "{{chrome}}.action": {
+
+    "default_title":"Open Rodoh"
+  },
+  
+  "background": {
+    "{{chrome}}.service_worker": "src/background.ts",
+    "{{firefox}}.scripts": ["src/background.ts"]
+  },
+
+  "permissions": [
+    "desktopCapture",
+    "scripting",
+    "downloads",
+    "storage",
+    "offscreen",
+    "tabs",
+    "*://localhost:5174/*"
+  ],
+  "host_permissions": [
+    "*://localhost:5174/*"
+  ]
+}
