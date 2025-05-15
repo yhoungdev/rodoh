@@ -1,3 +1,8 @@
+/*
+  @deprecated:  I am no longer using this again.
+  // i would remove it after fixing all issues.
+*/
+
 import { getQueryParam } from "@/utils";
 export async function fetchVideoData(fileUrl: string): Promise<string> {
   const videoData = await getQueryParam(fileUrl);

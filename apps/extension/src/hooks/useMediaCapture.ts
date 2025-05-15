@@ -3,6 +3,12 @@ import { useState, useEffect, useRef } from "react";
 import browser from "webextension-polyfill";
 import { MESSAGE_TYPES } from "../enums/messages";
 
+interface ClickEvent {
+  time: number;
+  x: number;
+  y: number;
+}
+
 interface MediaCaptureHook {
   isRecording: boolean;
   captureMedia: () => Promise<void>;
@@ -14,6 +20,8 @@ const useMediaCapture = (): MediaCaptureHook => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const tabIdRef = useRef<number | null>(null);
+  const clickEventsRef = useRef<ClickEvent[]>([]);
+  const recordingStartTimeRef = useRef<number | null>(null);
 
   useEffect(() => {
     browser.runtime
@@ -97,6 +105,25 @@ const useMediaCapture = (): MediaCaptureHook => {
     } catch (error) {}
   };
 
+  const handleDocumentClick = (e: MouseEvent) => {
+    if (!isRecording || !recordingStartTimeRef.current) return;
+
+    const clickTime = (Date.now() - recordingStartTimeRef.current) / 1000;
+
+    const x = e.clientX / window.innerWidth;
+    const y = e.clientY / window.innerHeight;
+
+    clickEventsRef.current.push({
+      time: clickTime,
+      x,
+      y,
+    });
+
+    console.log(
+      `Click recorded at time: ${clickTime}s, position: (${x}, ${y})`,
+    );
+  };
+
   const captureMedia = async () => {
     try {
       const displayStream = await navigator.mediaDevices.getDisplayMedia({
@@ -154,6 +181,10 @@ const useMediaCapture = (): MediaCaptureHook => {
           });
           const recordingId = `recording-${Date.now()}`;
 
+          const capturedClickEvents = [...clickEventsRef.current];
+
+          document.removeEventListener("click", handleDocumentClick);
+
           const base64data = await blobToBase64(recordingBlob);
 
           const newTab = await browser.tabs.create({
@@ -169,6 +200,7 @@ const useMediaCapture = (): MediaCaptureHook => {
               fileSize: recordingBlob.size,
               mimeType: "video/webm",
               timestamp: Date.now(),
+              clickEvents: capturedClickEvents,
             },
           });
 
@@ -194,6 +226,7 @@ const useMediaCapture = (): MediaCaptureHook => {
                       mimeType: "video/webm",
                       timestamp: Date.now(),
                       recordingId,
+                      clickEvents: capturedClickEvents,
                     },
                   });
                   console.log(
@@ -235,6 +268,7 @@ const useMediaCapture = (): MediaCaptureHook => {
             data: {
               videoData: base64data,
               recordingId: recordingId,
+              clickEvents: capturedClickEvents,
             },
           };
           localStorage.setItem("recordingData", JSON.stringify(dataToStore));
@@ -265,6 +299,10 @@ const useMediaCapture = (): MediaCaptureHook => {
       recorder.start(1000);
       mediaRecorderRef.current = recorder;
       setIsRecording(true);
+      recordingStartTimeRef.current = Date.now();
+      clickEventsRef.current = [];
+
+      document.addEventListener("click", handleDocumentClick);
 
       await browser.runtime.sendMessage({
         type: MESSAGE_TYPES.UPDATE_RECORDING_STATE,
@@ -292,6 +330,7 @@ const useMediaCapture = (): MediaCaptureHook => {
         mediaRecorderRef.current &&
         mediaRecorderRef.current.state === "recording"
       ) {
+        document.removeEventListener("click", handleDocumentClick);
         mediaRecorderRef.current.stop();
       } else {
         setIsRecording(false);
