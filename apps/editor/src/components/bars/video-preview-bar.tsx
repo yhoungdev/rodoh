@@ -35,7 +35,9 @@ const VideoModule = () => {
 
         const recordingDataString = localStorage.getItem("recordingData");
         if (!recordingDataString) {
-          throw new Error("No recording data found in localStorage.");
+          console.log("video-preview-bar: No data found, waiting for event...");
+
+          return;
         }
 
         const recordingData = JSON.parse(recordingDataString);
@@ -69,7 +71,37 @@ const VideoModule = () => {
     };
 
     loadVideoData();
-  }, []);
+
+    const handleRecordingReady = (event: CustomEvent) => {
+      console.log(
+        "video-preview-bar: Received recording-ready event",
+        event.detail,
+      );
+      loadVideoData();
+    };
+
+    window.addEventListener(
+      "rodoh:recording-ready",
+      handleRecordingReady as EventListener,
+    );
+
+    const checkInterval = setInterval(() => {
+      if (!videoURL && !errorMessage) {
+        console.log("video-preview-bar: Checking for data again...");
+        loadVideoData();
+      } else {
+        clearInterval(checkInterval);
+      }
+    }, 2000);
+
+    return () => {
+      window.removeEventListener(
+        "rodoh:recording-ready",
+        handleRecordingReady as EventListener,
+      );
+      clearInterval(checkInterval);
+    };
+  }, [videoURL, errorMessage]);
 
   return (
     <div>
