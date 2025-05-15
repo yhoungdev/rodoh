@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import ZoomableVideo from "../video/ZoomableVideo";
 
 const VideoModule = () => {
   const [videoURL, setVideoURL] = useState<string | null>(null);
@@ -10,7 +11,11 @@ const VideoModule = () => {
   const [loadingProgress, setLoadingProgress] = useState<number>(0);
 
   useEffect(() => {
+    let isMounted = true;
+
     const loadVideoData = async () => {
+      if (!isMounted) return;
+
       console.log("video-preview-bar: Starting to load video data...");
       setIsLoading(true);
       setErrorMessage(null);
@@ -36,7 +41,7 @@ const VideoModule = () => {
         const recordingDataString = localStorage.getItem("recordingData");
         if (!recordingDataString) {
           console.log("video-preview-bar: No data found, waiting for event...");
-
+          setIsLoading(false);
           return;
         }
 
@@ -65,8 +70,10 @@ const VideoModule = () => {
         setLoadingProgress(100);
         setIsLoading(false);
       } catch (err: any) {
-        setErrorMessage(err.message || "An error occurred.");
-        setIsLoading(false);
+        if (isMounted) {
+          setErrorMessage(err.message || "An error occurred.");
+          setIsLoading(false);
+        }
       }
     };
 
@@ -77,7 +84,9 @@ const VideoModule = () => {
         "video-preview-bar: Received recording-ready event",
         event.detail,
       );
-      loadVideoData();
+      if (isMounted) {
+        loadVideoData();
+      }
     };
 
     window.addEventListener(
@@ -85,40 +94,40 @@ const VideoModule = () => {
       handleRecordingReady as EventListener,
     );
 
-    const checkInterval = setInterval(() => {
-      if (!videoURL && !errorMessage) {
-        console.log("video-preview-bar: Checking for data again...");
+    let dataCheckRef: number | null = null;
+
+    const checkForData = () => {
+      const hasVideo = !!localStorage.getItem("recordingData");
+      if (hasVideo && isMounted) {
         loadVideoData();
-      } else {
-        clearInterval(checkInterval);
+        if (dataCheckRef) {
+          clearInterval(dataCheckRef);
+          dataCheckRef = null;
+        }
       }
-    }, 2000);
+    };
+
+    if (!localStorage.getItem("recordingData")) {
+      dataCheckRef = window.setInterval(checkForData, 2000);
+    }
 
     return () => {
+      isMounted = false;
       window.removeEventListener(
         "rodoh:recording-ready",
         handleRecordingReady as EventListener,
       );
-      clearInterval(checkInterval);
+      if (dataCheckRef) {
+        clearInterval(dataCheckRef);
+      }
     };
-  }, [videoURL, errorMessage]);
+  }, []);
 
   return (
     <div>
       {isLoading && <p>Loading... {loadingProgress}%</p>}
       {errorMessage && <p className="text-red-500">{errorMessage}</p>}
-      {videoURL && (
-        <>
-          <video
-            src={videoURL}
-            controls
-            style={{ width: "100%", maxWidth: "800px" }}
-          />
-          <a href={videoURL} download={downloadFileName} className="btn">
-            Download Recording
-          </a>
-        </>
-      )}
+      {videoURL && <ZoomableVideo src={videoURL} fileName={downloadFileName} />}
     </div>
   );
 };
