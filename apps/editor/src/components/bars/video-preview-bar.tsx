@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import ZoomableVideo from "../video/ZoomableVideo";
+import VideoEditor from "../video/VideoEditor";
 
 interface VideoClickEvent {
   time: number;
@@ -148,7 +148,7 @@ const VideoModule = () => {
       {isLoading && <p>Loading... {loadingProgress}%</p>}
       {errorMessage && <p className="text-red-500">{errorMessage}</p>}
       {videoURL && (
-        <ZoomableVideo
+        <VideoEditor
           src={videoURL}
           fileName={downloadFileName}
           clickEvents={clickEvents}

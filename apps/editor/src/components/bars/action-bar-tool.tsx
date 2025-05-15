@@ -1,6 +1,7 @@
 import BackgroundModule from "../modules/background";
 import DefaultCard from "@/components/modules/card.tsx";
 import MediaModule from "@/components/modules/media.tsx";
+import ZoomPanModule from "@/components/modules/zoom-pan";
 
 function ActionBarTool() {
   return (
@@ -8,7 +9,9 @@ function ActionBarTool() {
       <MediaModule />
       <BackgroundModule />
 
-      <DefaultCard title={" Zoom and Pan 🤚"}></DefaultCard>
+      <DefaultCard title={" Zoom and Pan 🤚"}>
+        <ZoomPanModule />
+      </DefaultCard>
     </div>
   );
 }
