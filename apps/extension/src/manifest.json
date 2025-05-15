@@ -22,7 +22,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["*://localhost:5174/*"],
+      "matches": ["http://localhost:5174/*"],
       "js": ["src/content-script.ts"]
     }
   ],
