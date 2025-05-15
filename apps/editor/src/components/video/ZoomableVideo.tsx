@@ -11,11 +11,38 @@ import "./ZoomableVideo.css";
 interface ZoomableVideoProps {
   src: string;
   fileName: string;
+  clickEvents?: VideoClickEvent[];
 }
+
+interface VideoClickEvent {
+  time: number;
+  x: number;
+  y: number;
+}
+
+const defaultClickEvents: VideoClickEvent[] = [
+  { time: 2, x: 0.25, y: 0.25 },
+  { time: 5, x: 0.75, y: 0.5 },
+  { time: 8, x: 0.3, y: 0.7 },
+  { time: 12, x: 0.6, y: 0.2 },
+];
+
+// TODO: So i don't forget to implement this
+// I would move this to common 🤪
+const AUTO_ZOOM_CONFIG = {
+  scale: 2.0,
+  duration: 1000,
+  holdTime: 1500,
+  easing: "cubic-bezier(0.4, 0, 0.2, 1)",
+};
 
 const ZOOM_STEP = 0.1;
 
-const ZoomableVideo: React.FC<ZoomableVideoProps> = ({ src, fileName }) => {
+const ZoomableVideo: React.FC<ZoomableVideoProps> = ({
+  src,
+  fileName,
+  clickEvents = [],
+}) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -31,10 +58,52 @@ const ZoomableVideo: React.FC<ZoomableVideoProps> = ({ src, fileName }) => {
   });
   const [touchDistance, setTouchDistance] = useState<number | null>(null);
   const [showControls, setShowControls] = useState<boolean>(true);
+  const [autoZooming, setAutoZooming] = useState<boolean>(false);
+  const [enableAutoZoom, setEnableAutoZoom] = useState<boolean>(true);
+
+  const clickEventsRef = useRef<VideoClickEvent[]>(
+    clickEvents.length > 0 ? clickEvents : defaultClickEvents,
+  );
+  const autoZoomTimeoutRef = useRef<number | null>(null);
 
   const resetView = () => {
     setScale(1);
     setPosition({ x: 0, y: 0 });
+  };
+
+  const autoZoomToPoint = (x: number, y: number) => {
+    if (!containerRef.current || !videoRef.current || !enableAutoZoom) return;
+
+    setAutoZooming(true);
+
+    const container = containerRef.current;
+    const rect = container.getBoundingClientRect();
+    const containerWidth = rect.width;
+    const containerHeight = rect.height;
+
+    const absX = x * containerWidth;
+    const absY = y * containerHeight;
+
+    const newX = absX / scale - containerWidth / (2 * scale);
+    const newY = absY / scale - containerHeight / (2 * scale);
+
+    container.style.transition = `transform ${AUTO_ZOOM_CONFIG.duration}ms ${AUTO_ZOOM_CONFIG.easing}`;
+    setScale(AUTO_ZOOM_CONFIG.scale);
+    setPosition({ x: newX, y: newY });
+
+    if (autoZoomTimeoutRef.current) {
+      window.clearTimeout(autoZoomTimeoutRef.current);
+    }
+
+    autoZoomTimeoutRef.current = window.setTimeout(() => {
+      container.style.transition = `transform ${AUTO_ZOOM_CONFIG.duration}ms ${AUTO_ZOOM_CONFIG.easing}`;
+      resetView();
+
+      setTimeout(() => {
+        setAutoZooming(false);
+        container.style.transition = "";
+      }, AUTO_ZOOM_CONFIG.duration);
+    }, AUTO_ZOOM_CONFIG.holdTime);
   };
 
   const handleZoomIn = () => {
@@ -69,6 +138,8 @@ const ZoomableVideo: React.FC<ZoomableVideoProps> = ({ src, fileName }) => {
   };
 
   const handleWheel = (e: WheelEvent) => {
+    if (autoZooming) return;
+
     e.preventDefault();
 
     const delta = e.deltaY * -0.01;
@@ -88,6 +159,8 @@ const ZoomableVideo: React.FC<ZoomableVideoProps> = ({ src, fileName }) => {
   };
 
   const handleMouseDown = (e: MouseEvent) => {
+    if (autoZooming) return;
+
     if (scale > 1) {
       e.preventDefault();
       setIsDragging(true);
@@ -96,6 +169,8 @@ const ZoomableVideo: React.FC<ZoomableVideoProps> = ({ src, fileName }) => {
   };
 
   const handleMouseMove = (e: MouseEvent) => {
+    if (autoZooming) return;
+
     if (isDragging && scale > 1) {
       const dx = (e.clientX - dragStart.x) / scale;
       const dy = (e.clientY - dragStart.y) / scale;
@@ -114,6 +189,8 @@ const ZoomableVideo: React.FC<ZoomableVideoProps> = ({ src, fileName }) => {
   };
 
   const handleTouchStart = (e: TouchEvent) => {
+    if (autoZooming) return;
+
     if (e.touches.length === 1) {
       setIsDragging(true);
       setDragStart({ x: e.touches[0].clientX, y: e.touches[0].clientY });
@@ -123,6 +200,8 @@ const ZoomableVideo: React.FC<ZoomableVideoProps> = ({ src, fileName }) => {
   };
 
   const handleTouchMove = (e: TouchEvent) => {
+    if (autoZooming) return;
+
     e.preventDefault();
 
     if (e.touches.length === 1 && isDragging && scale > 1) {
@@ -173,10 +252,46 @@ const ZoomableVideo: React.FC<ZoomableVideoProps> = ({ src, fileName }) => {
     };
 
     window.addEventListener("mouseup", handleGlobalMouseUp);
+
     return () => {
       window.removeEventListener("mouseup", handleGlobalMouseUp);
+      if (autoZoomTimeoutRef.current) {
+        window.clearTimeout(autoZoomTimeoutRef.current);
+      }
     };
   }, []);
+
+  useEffect(() => {
+    clickEventsRef.current =
+      clickEvents.length > 0 ? clickEvents : defaultClickEvents;
+  }, [clickEvents]);
+
+  useEffect(() => {
+    const videoElement = videoRef.current;
+    if (!videoElement) return;
+
+    const handleTimeUpdate = () => {
+      if (!enableAutoZoom || autoZooming) return;
+
+      const currentTime = videoElement.currentTime;
+      const currentClickEvents = clickEventsRef.current;
+
+      const tolerance = 0.2;
+      const clickEvent = currentClickEvents.find(
+        (event) => Math.abs(event.time - currentTime) < tolerance,
+      );
+
+      if (clickEvent) {
+        autoZoomToPoint(clickEvent.x, clickEvent.y);
+      }
+    };
+
+    videoElement.addEventListener("timeupdate", handleTimeUpdate);
+
+    return () => {
+      videoElement.removeEventListener("timeupdate", handleTimeUpdate);
+    };
+  }, [enableAutoZoom, autoZooming]);
 
   const handleDoubleClick = () => {
     setShowControls(!showControls);
@@ -204,6 +319,15 @@ const ZoomableVideo: React.FC<ZoomableVideoProps> = ({ src, fileName }) => {
           >
             +
           </button>
+        </div>
+        <div className="control-checkbox">
+          <input
+            type="checkbox"
+            id="autoZoomToggle"
+            checked={enableAutoZoom}
+            onChange={() => setEnableAutoZoom(!enableAutoZoom)}
+          />
+          <label htmlFor="autoZoomToggle">Auto-zoom on clicks</label>
         </div>
       </div>
 
@@ -267,6 +391,10 @@ const ZoomableVideo: React.FC<ZoomableVideoProps> = ({ src, fileName }) => {
           <li>Click and drag (or touch and drag) to pan when zoomed in</li>
           <li>Pinch to zoom on touch devices</li>
           <li>Double-click (or double-tap) to toggle video controls</li>
+          <li>
+            Toggle "Auto-zoom on clicks" to see automatic zooming at click
+            points
+          </li>
         </ul>
       </div>
     </div>

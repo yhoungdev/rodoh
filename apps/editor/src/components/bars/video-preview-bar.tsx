@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
 import ZoomableVideo from "../video/ZoomableVideo";
 
+interface VideoClickEvent {
+  time: number;
+  x: number;
+  y: number;
+}
+
 const VideoModule = () => {
   const [videoURL, setVideoURL] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -9,6 +15,7 @@ const VideoModule = () => {
   );
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [loadingProgress, setLoadingProgress] = useState<number>(0);
+  const [clickEvents, setClickEvents] = useState<VideoClickEvent[]>([]);
 
   useEffect(() => {
     let isMounted = true;
@@ -49,9 +56,22 @@ const VideoModule = () => {
 
         const base64Data = recordingData?.data?.videoData;
         const idFromStorage = recordingData?.data?.recordingId;
+        const clickEventsData = recordingData?.data?.clickEvents || [];
 
         if (!base64Data || (idFromStorage && idFromStorage !== recordingId)) {
           throw new Error("Recording data ID mismatch or missing.");
+        }
+
+        if (Array.isArray(clickEventsData) && clickEventsData.length > 0) {
+          setClickEvents(clickEventsData);
+        } else {
+          const mockEvents = [
+            { time: 2, x: 0.25, y: 0.25 },
+            { time: 5, x: 0.75, y: 0.5 },
+            { time: 8, x: 0.3, y: 0.7 },
+            { time: 12, x: 0.6, y: 0.2 },
+          ];
+          setClickEvents(mockEvents);
         }
 
         setLoadingProgress(60);
@@ -127,7 +147,13 @@ const VideoModule = () => {
     <div>
       {isLoading && <p>Loading... {loadingProgress}%</p>}
       {errorMessage && <p className="text-red-500">{errorMessage}</p>}
-      {videoURL && <ZoomableVideo src={videoURL} fileName={downloadFileName} />}
+      {videoURL && (
+        <ZoomableVideo
+          src={videoURL}
+          fileName={downloadFileName}
+          clickEvents={clickEvents}
+        />
+      )}
     </div>
   );
 };

@@ -19,6 +19,7 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
           fileSize: message.data.fileSize,
           mimeType: message.data.mimeType,
           timestamp: message.data.timestamp,
+          clickEvents: message.data.clickEvents || [],
         },
       };
 
