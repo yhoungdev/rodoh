@@ -32,6 +32,8 @@
 .background-options {
   display: flex;
   gap: 0.5rem;
+  flex-wrap: wrap;
+  max-width: 280px;
 }
 
 .background-option {
@@ -47,6 +49,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  background-size: cover;
+  background-position: center;
 }
 
 .background-option:hover {
@@ -151,13 +155,37 @@
   border-color: #047857;
 }
 
+.editor-action-button.recording {
+  background-color: #ef4444;
+  color: white;
+  border-color: #b91c1c;
+  animation: pulse-recording 2s infinite;
+}
+
+.editor-action-button.recording:hover {
+  background-color: #b91c1c;
+  border-color: #991b1b;
+}
+
+@keyframes pulse-recording {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
+}
+
 .video-canvas {
   padding: 3rem;
   min-height: 500px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: 0 0 0.5rem 0.5rem;
   border: 1px solid #e5e7eb;
   border-top: none;
@@ -202,8 +230,8 @@
   right: 1rem;
   top: 50%;
   transform: translateY(-50%);
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 0.75rem;
   padding: 0.75rem;
   background-color: rgba(255, 255, 255, 0.15);
@@ -212,6 +240,7 @@
   z-index: 20;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
+  max-width: 120px;
 }
 
 .background-preview {
@@ -221,6 +250,8 @@
   cursor: pointer;
   transition: all 0.2s ease;
   border: 2px solid transparent;
+  background-size: cover;
+  background-position: center;
 }
 
 .background-preview:hover {
@@ -240,6 +271,16 @@
   background-color: #f9fafb;
   border-radius: 0.5rem;
   border: 1px solid #e5e7eb;
+}
+
+.editor-action-button[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.editor-action-button:disabled:hover {
+  background-color: #f3f4f6;
+  border-color: #d1d5db;
 }
 
 .selected-background {
@@ -342,11 +383,14 @@
     right: initial;
     top: initial;
     transform: none;
-    flex-direction: row;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     width: auto;
     max-width: 90%;
     left: 50%;
     transform: translateX(-50%);
+    grid-template-columns: repeat(4, 1fr);
   }
 }
 

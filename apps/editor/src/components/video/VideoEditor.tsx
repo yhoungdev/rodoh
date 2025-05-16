@@ -26,6 +26,8 @@ interface Background {
   id: string;
   name: string;
   color: string;
+  gradient?: string;
+  type: "solid" | "gradient";
 }
 
 interface ZoomPanSettings {
@@ -37,14 +39,49 @@ interface ZoomPanSettings {
 }
 
 const backgrounds: Background[] = [
-  { id: "bg-1", name: "Classic", color: "#f3f4f6" },
-  { id: "bg-2", name: "Dark", color: "#1f2937" },
-  { id: "bg-3", name: "Midnight", color: "#111827" },
-  { id: "bg-4", name: "Ocean", color: "#0c4a6e" },
-  { id: "bg-5", name: "Forest", color: "#064e3b" },
-  { id: "bg-6", name: "Sunset", color: "#7c2d12" },
-  { id: "bg-7", name: "Lavender", color: "#581c87" },
-  { id: "bg-8", name: "Rose", color: "#9f1239" },
+  { id: "bg-1", name: "Classic", color: "#f3f4f6", type: "solid" },
+  { id: "bg-2", name: "Dark", color: "#1f2937", type: "solid" },
+  { id: "bg-3", name: "Midnight", color: "#111827", type: "solid" },
+  { id: "bg-4", name: "Ocean", color: "#0c4a6e", type: "solid" },
+  { id: "bg-5", name: "Forest", color: "#064e3b", type: "solid" },
+  { id: "bg-6", name: "Sunset", color: "#7c2d12", type: "solid" },
+  { id: "bg-7", name: "Lavender", color: "#581c87", type: "solid" },
+  { id: "bg-8", name: "Rose", color: "#9f1239", type: "solid" },
+  {
+    id: "bg-9",
+    name: "Cosmic",
+    color: "#000000",
+    gradient: "linear-gradient(135deg, #0c0c2c 0%, #302b63 50%, #24243e 100%)",
+    type: "gradient",
+  },
+  {
+    id: "bg-10",
+    name: "Sunrise",
+    color: "#ffa500",
+    gradient: "linear-gradient(to right, #ff8c00, #ff0080)",
+    type: "gradient",
+  },
+  {
+    id: "bg-11",
+    name: "Aurora",
+    color: "#00cc99",
+    gradient: "linear-gradient(to right, #00cc99, #6600ff)",
+    type: "gradient",
+  },
+  {
+    id: "bg-12",
+    name: "Nebula",
+    color: "#663399",
+    gradient: "linear-gradient(45deg, #663399, #ff3366, #3366ff)",
+    type: "gradient",
+  },
+  {
+    id: "bg-13",
+    name: "Fire Ice",
+    color: "#ff4136",
+    gradient: "linear-gradient(to bottom, #ff4136, #0074d9)",
+    type: "gradient",
+  },
 ];
 
 const VideoEditor: React.FC<VideoEditorProps> = ({
@@ -76,11 +113,16 @@ const VideoEditor: React.FC<VideoEditorProps> = ({
     y: 0,
   });
   const [manualZoom, setManualZoom] = useState<boolean>(false);
+  const [isRecording, setIsRecording] = useState<boolean>(false);
+  const [recordedVideo, setRecordedVideo] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const videoContainerRef = useRef<HTMLDivElement>(null);
   const notificationTimeoutRef = useRef<number | null>(null);
   const zoomTimeoutRef = useRef<number | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const recordedChunksRef = useRef<BlobPart[]>([]);
+  const canvasStreamRef = useRef<MediaStream | null>(null);
 
   const zoomSettings = useStore(
     (state) => state.editorSettings.zoomPan,
@@ -140,6 +182,156 @@ const VideoEditor: React.FC<VideoEditorProps> = ({
         }
       }, zoomSettings.duration);
     }
+  };
+
+  const startRecording = () => {
+    if (!containerRef.current || !videoRef.current) return;
+
+    try {
+      recordedChunksRef.current = [];
+
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      const videoElement = videoRef.current;
+
+      canvas.width = videoElement.videoWidth;
+      canvas.height = videoElement.videoHeight;
+
+      canvasStreamRef.current = canvas.captureStream();
+
+      const mediaRecorder = new MediaRecorder(canvasStreamRef.current, {
+        mimeType: "video/webm;codecs=vp9",
+      });
+
+      mediaRecorderRef.current = mediaRecorder;
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          recordedChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(recordedChunksRef.current, {
+          type: "video/webm",
+        });
+        const url = URL.createObjectURL(blob);
+        setRecordedVideo(url);
+        setNotificationText("Video exported successfully!");
+        setShowNotification(true);
+
+        if (notificationTimeoutRef.current) {
+          window.clearTimeout(notificationTimeoutRef.current);
+        }
+
+        notificationTimeoutRef.current = window.setTimeout(() => {
+          setShowNotification(false);
+        }, 2000);
+      };
+
+      videoElement.currentTime = 0;
+      videoElement.play();
+
+      mediaRecorder.start(100);
+      setIsRecording(true);
+      setNotificationText("Recording started...");
+      setShowNotification(true);
+
+      const drawFrame = () => {
+        if (!ctx || !videoElement || !videoContainerRef.current) return;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        if (
+          selectedBackground.type === "gradient" &&
+          selectedBackground.gradient
+        ) {
+          const gradient = ctx.createLinearGradient(
+            0,
+            0,
+            canvas.width,
+            canvas.height,
+          );
+
+          const gradientStr = selectedBackground.gradient;
+          const matches = gradientStr.match(/rgba?\([\d\s,.]+\)|#[a-f\d]+/gi);
+
+          if (matches && matches.length >= 2) {
+            gradient.addColorStop(0, matches[0]);
+            gradient.addColorStop(1, matches[1]);
+            ctx.fillStyle = gradient;
+          } else {
+            ctx.fillStyle = selectedBackground.color;
+          }
+        } else {
+          ctx.fillStyle = selectedBackground.color;
+        }
+
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.save();
+
+        ctx.translate(canvas.width / 2, canvas.height / 2);
+
+        ctx.scale(currentScale, currentScale);
+
+        if (isZooming) {
+          const offsetX =
+            ((0.5 - zoomPosition.x) * canvas.width) / currentScale;
+          const offsetY =
+            ((0.5 - zoomPosition.y) * canvas.height) / currentScale;
+          ctx.translate(offsetX, offsetY);
+        } else {
+          ctx.translate(-position.x, -position.y);
+        }
+
+        ctx.translate(
+          -canvas.width / 2 / currentScale,
+          -canvas.height / 2 / currentScale,
+        );
+
+        ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+
+        ctx.restore();
+
+        if (isRecording) {
+          requestAnimationFrame(drawFrame);
+        }
+      };
+
+      drawFrame();
+
+      videoElement.onended = () => {
+        stopRecording();
+      };
+    } catch (error) {
+      console.error("Error starting recording:", error);
+      setNotificationText("Failed to start recording");
+      setShowNotification(true);
+    }
+  };
+
+  const stopRecording = () => {
+    if (
+      mediaRecorderRef.current &&
+      mediaRecorderRef.current.state !== "inactive"
+    ) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+    }
+
+    if (canvasStreamRef.current) {
+      canvasStreamRef.current.getTracks().forEach((track) => track.stop());
+    }
+  };
+
+  const downloadRecordedVideo = () => {
+    if (!recordedVideo) return;
+
+    const a = document.createElement("a");
+    a.href = recordedVideo;
+    a.download = `${fileName.split(".")[0]}_with_effects.webm`;
+    a.click();
   };
 
   const autoZoomToPoint = useCallback(
@@ -403,8 +595,23 @@ const VideoEditor: React.FC<VideoEditorProps> = ({
       if (zoomTimeoutRef.current) {
         window.clearTimeout(zoomTimeoutRef.current);
       }
+
+      if (
+        mediaRecorderRef.current &&
+        mediaRecorderRef.current.state !== "inactive"
+      ) {
+        mediaRecorderRef.current.stop();
+      }
+
+      if (canvasStreamRef.current) {
+        canvasStreamRef.current.getTracks().forEach((track) => track.stop());
+      }
+
+      if (recordedVideo) {
+        URL.revokeObjectURL(recordedVideo);
+      }
     };
-  }, []);
+  }, [recordedVideo]);
 
   return (
     <div className="video-editor">
@@ -416,7 +623,10 @@ const VideoEditor: React.FC<VideoEditorProps> = ({
               <div
                 key={bg.id}
                 className={`background-option ${selectedBackground.id === bg.id ? "selected" : ""}`}
-                style={{ backgroundColor: bg.color }}
+                style={{
+                  backgroundColor: bg.color,
+                  background: bg.type === "gradient" ? bg.gradient : bg.color,
+                }}
                 onClick={() => handleBackgroundChange(bg)}
                 title={bg.name}
               >
@@ -462,13 +672,44 @@ const VideoEditor: React.FC<VideoEditorProps> = ({
           >
             Download
           </a>
+          {!isRecording && !recordedVideo && (
+            <button
+              className="editor-action-button"
+              onClick={startRecording}
+              disabled={isRecording}
+            >
+              Record Video
+            </button>
+          )}
+          {isRecording && (
+            <button
+              className="editor-action-button recording"
+              onClick={stopRecording}
+            >
+              Stop Recording
+            </button>
+          )}
+          {recordedVideo && (
+            <button
+              className="editor-action-button download-button"
+              onClick={downloadRecordedVideo}
+            >
+              Download Recording
+            </button>
+          )}
         </div>
       </div>
 
       <div
         ref={containerRef}
         className="video-canvas"
-        style={{ backgroundColor: selectedBackground.color }}
+        style={{
+          backgroundColor: selectedBackground.color,
+          background:
+            selectedBackground.type === "gradient"
+              ? selectedBackground.gradient
+              : selectedBackground.color,
+        }}
       >
         {showNotification && (
           <div className="background-notification">{notificationText}</div>
@@ -498,7 +739,10 @@ const VideoEditor: React.FC<VideoEditorProps> = ({
             <div
               key={`preview-${bg.id}`}
               className={`background-preview ${selectedBackground.id === bg.id ? "active" : ""}`}
-              style={{ backgroundColor: bg.color }}
+              style={{
+                backgroundColor: bg.color,
+                background: bg.type === "gradient" ? bg.gradient : bg.color,
+              }}
               onClick={() => handleBackgroundChange(bg)}
               title={`Switch to ${bg.name} background`}
             />
