@@ -13,6 +13,7 @@
   "dependencies": {
     "@ffmpeg/ffmpeg": "^0.12.15",
     "@ffmpeg/util": "^0.12.2",
+    "@fingerprintjs/fingerprintjs-pro": "^3.11.9",
     "@hookform/resolvers": "^5.0.1",
     "@radix-ui/react-checkbox": "^1.1.5",
     "@radix-ui/react-dialog": "^1.1.7",
