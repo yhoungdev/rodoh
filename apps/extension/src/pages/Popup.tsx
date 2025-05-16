@@ -3,7 +3,13 @@ import "./Popup.css";
 import useMediaCapture from "../hooks/useMediaCapture";
 
 export default function PopupPage() {
-  const { isRecording, captureMedia, stopCapture } = useMediaCapture();
+  const {
+    isRecording,
+    captureMedia,
+    stopCapture,
+    webcamEnabled,
+    setWebcamEnabled,
+  } = useMediaCapture();
   const [recordingTime, setRecordingTime] = useState(0);
 
   useEffect(() => {
@@ -37,6 +43,10 @@ export default function PopupPage() {
     : "bg-blue-600 hover:bg-blue-700";
   const buttonShadow = isRecording ? "shadow-red-500/50" : "shadow-blue-500/50";
   const titleColor = isRecording ? "text-red-400" : "text-red-500";
+
+  const toggleWebcam = () => {
+    setWebcamEnabled(!webcamEnabled);
+  };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-slate-900 p-4 font-sans">
@@ -84,9 +94,25 @@ export default function PopupPage() {
         </button>
 
         {!isRecording && (
-          <p className="text-slate-500 text-xs mt-6">
-            Your recordings will be opened in the Rodoh editor.
-          </p>
+          <>
+            <div className="flex items-center justify-center mt-6 mb-2">
+              <label className="inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={webcamEnabled}
+                  onChange={toggleWebcam}
+                  className="sr-only peer"
+                />
+                <div className="relative w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                <span className="ms-3 text-sm font-medium text-white">
+                  Include Webcam
+                </span>
+              </label>
+            </div>
+            <p className="text-slate-500 text-xs mt-2">
+              Your recordings will be opened in the Rodoh editor.
+            </p>
+          </>
         )}
       </div>
     </div>

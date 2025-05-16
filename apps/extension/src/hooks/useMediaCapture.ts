@@ -132,6 +132,7 @@ const useMediaCapture = (): MediaCaptureHook => {
       });
 
       let audioStream: MediaStream | null = null;
+      let webcamStream: MediaStream | null = null;
       let combinedStream: MediaStream;
 
       try {
@@ -142,13 +143,27 @@ const useMediaCapture = (): MediaCaptureHook => {
             sampleRate: 44100,
           },
         });
+
+        webcamStream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            width: { ideal: 320 },
+            height: { ideal: 240 },
+            facingMode: "user",
+          },
+        });
+
         const tracks = [...displayStream.getVideoTracks()];
+
         displayStream
           .getAudioTracks()
           .forEach((track) => tracks.push(track.clone()));
+
         audioStream
           .getAudioTracks()
           .forEach((track) => tracks.push(track.clone()));
+
+        const webcamVideoTrack = webcamStream.getVideoTracks()[0];
+
         combinedStream = new MediaStream(tracks);
       } catch (err) {
         combinedStream = displayStream;
@@ -184,6 +199,18 @@ const useMediaCapture = (): MediaCaptureHook => {
           const capturedClickEvents = [...clickEventsRef.current];
 
           document.removeEventListener("click", handleDocumentClick);
+
+          let webcamBlob = null;
+          let webcamBase64 = null;
+          if (webcamStream && webcamStream.getVideoTracks().length > 0) {
+            const webcamTrack = webcamStream.getVideoTracks()[0];
+            if (webcamTrack.readyState === "live") {
+              webcamBlob = new Blob([JSON.stringify({ hasWebcam: true })], {
+                type: "application/json",
+              });
+              webcamBase64 = await blobToBase64(webcamBlob);
+            }
+          }
 
           const base64data = await blobToBase64(recordingBlob);
 
@@ -227,6 +254,7 @@ const useMediaCapture = (): MediaCaptureHook => {
                       timestamp: Date.now(),
                       recordingId,
                       clickEvents: capturedClickEvents,
+                      hasWebcam: !!webcamBase64,
                     },
                   });
                   console.log(

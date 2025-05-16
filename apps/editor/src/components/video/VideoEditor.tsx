@@ -14,6 +14,7 @@ interface VideoEditorProps {
   src: string;
   fileName: string;
   clickEvents?: VideoClickEvent[];
+  hasWebcam?: boolean;
 }
 
 interface VideoClickEvent {
@@ -88,6 +89,7 @@ const VideoEditor: React.FC<VideoEditorProps> = ({
   src,
   fileName,
   clickEvents = [],
+  hasWebcam = false,
 }) => {
   const clickEventsRef = useRef<VideoClickEvent[]>(clickEvents);
   const [selectedBackground, setSelectedBackground] = useState<Background>(
@@ -101,6 +103,15 @@ const VideoEditor: React.FC<VideoEditorProps> = ({
     x: 0,
     y: 0,
   });
+  const [showWebcam, setShowWebcam] = useState<boolean>(hasWebcam);
+  const [webcamPosition, setWebcamPosition] = useState<
+    "topLeft" | "topRight" | "bottomLeft" | "bottomRight"
+  >("bottomRight");
+  const [webcamSize, setWebcamSize] = useState<"small" | "medium" | "large">(
+    "small",
+  );
+  const [showWebcamInRecording, setShowWebcamInRecording] =
+    useState<boolean>(true);
   const [currentScale, setCurrentScale] = useState<number>(1);
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [dragStart, setDragStart] = useState<{ x: number; y: number }>({
@@ -118,11 +129,14 @@ const VideoEditor: React.FC<VideoEditorProps> = ({
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const videoContainerRef = useRef<HTMLDivElement>(null);
+  const webcamRef = useRef<HTMLVideoElement>(null);
+  const webcamContainerRef = useRef<HTMLDivElement>(null);
   const notificationTimeoutRef = useRef<number | null>(null);
   const zoomTimeoutRef = useRef<number | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recordedChunksRef = useRef<BlobPart[]>([]);
   const canvasStreamRef = useRef<MediaStream | null>(null);
+  const webcamStreamRef = useRef<MediaStream | null>(null);
 
   const zoomSettings = useStore(
     (state) => state.editorSettings.zoomPan,
@@ -184,10 +198,71 @@ const VideoEditor: React.FC<VideoEditorProps> = ({
     }
   };
 
-  const startRecording = () => {
+  const toggleWebcam = async () => {
+    if (showWebcam) {
+      if (webcamStreamRef.current) {
+        webcamStreamRef.current.getTracks().forEach((track) => track.stop());
+        webcamStreamRef.current = null;
+      }
+      setShowWebcam(false);
+    } else {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: false,
+        });
+        if (webcamRef.current) {
+          webcamRef.current.srcObject = stream;
+          webcamStreamRef.current = stream;
+          setShowWebcam(true);
+          setNotificationText("Webcam activated");
+          setShowNotification(true);
+
+          if (notificationTimeoutRef.current) {
+            window.clearTimeout(notificationTimeoutRef.current);
+          }
+
+          notificationTimeoutRef.current = window.setTimeout(() => {
+            setShowNotification(false);
+          }, 2000);
+        }
+      } catch (error) {
+        console.error("Error accessing webcam:", error);
+        setNotificationText("Failed to access webcam");
+        setShowNotification(true);
+      }
+    }
+  };
+
+  const changeWebcamPosition = (
+    position: "topLeft" | "topRight" | "bottomLeft" | "bottomRight",
+  ) => {
+    setWebcamPosition(position);
+  };
+
+  const changeWebcamSize = () => {
+    const sizes: ("small" | "medium" | "large")[] = [
+      "small",
+      "medium",
+      "large",
+    ];
+    const currentIndex = sizes.indexOf(webcamSize);
+    const nextIndex = (currentIndex + 1) % sizes.length;
+    setWebcamSize(sizes[nextIndex]);
+  };
+
+  const toggleWebcamInRecording = () => {
+    setShowWebcamInRecording(!showWebcamInRecording);
+  };
+
+  const startRecording = async () => {
     if (!containerRef.current || !videoRef.current) return;
 
     try {
+      if (hasWebcam && !showWebcam) {
+        await toggleWebcam();
+      }
+
       recordedChunksRef.current = [];
 
       const canvas = document.createElement("canvas");
@@ -291,6 +366,67 @@ const VideoEditor: React.FC<VideoEditorProps> = ({
         );
 
         ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+
+        if (showWebcam && showWebcamInRecording && webcamRef.current) {
+          const webcamEl = webcamRef.current;
+
+          if (webcamEl.videoWidth && webcamEl.videoHeight) {
+            ctx.save();
+            ctx.resetTransform();
+
+            const sizeMultiplier =
+              webcamSize === "small"
+                ? 0.2
+                : webcamSize === "medium"
+                  ? 0.3
+                  : 0.4;
+            const webcamWidth = canvas.width * sizeMultiplier;
+            const webcamHeight =
+              (webcamWidth / webcamEl.videoWidth) * webcamEl.videoHeight;
+
+            let webcamX = 0;
+            let webcamY = 0;
+
+            const padding = 20;
+
+            switch (webcamPosition) {
+              case "topLeft":
+                webcamX = padding;
+                webcamY = padding;
+                break;
+              case "topRight":
+                webcamX = canvas.width - webcamWidth - padding;
+                webcamY = padding;
+                break;
+              case "bottomLeft":
+                webcamX = padding;
+                webcamY = canvas.height - webcamHeight - padding;
+                break;
+              case "bottomRight":
+                webcamX = canvas.width - webcamWidth - padding;
+                webcamY = canvas.height - webcamHeight - padding;
+                break;
+            }
+
+            ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+            ctx.fillRect(
+              webcamX - 5,
+              webcamY - 5,
+              webcamWidth + 10,
+              webcamHeight + 10,
+            );
+
+            ctx.drawImage(
+              webcamEl,
+              webcamX,
+              webcamY,
+              webcamWidth,
+              webcamHeight,
+            );
+
+            ctx.restore();
+          }
+        }
 
         ctx.restore();
 
@@ -665,6 +801,32 @@ const VideoEditor: React.FC<VideoEditorProps> = ({
           <button className="editor-action-button" onClick={toggleFullscreen}>
             {isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
           </button>
+          {hasWebcam && (
+            <button
+              className={`editor-action-button ${showWebcam ? "active" : ""}`}
+              onClick={toggleWebcam}
+            >
+              {showWebcam ? "Disable Webcam" : "Enable Webcam"}
+            </button>
+          )}
+          {showWebcam && (
+            <>
+              <button
+                className="editor-action-button"
+                onClick={changeWebcamSize}
+                title="Change webcam size"
+              >
+                Webcam {webcamSize}
+              </button>
+              <button
+                className={`editor-action-button ${showWebcamInRecording ? "active" : ""}`}
+                onClick={toggleWebcamInRecording}
+                title="Toggle webcam visibility in recording"
+              >
+                {showWebcamInRecording ? "Hide In Video" : "Show In Video"}
+              </button>
+            </>
+          )}
           <a
             href={src}
             download={fileName}
@@ -734,6 +896,58 @@ const VideoEditor: React.FC<VideoEditorProps> = ({
         >
           <video ref={videoRef} src={src} controls className="video-player" />
         </div>
+
+        {showWebcam && (
+          <div
+            ref={webcamContainerRef}
+            className={`webcam-container ${webcamSize} ${webcamPosition}`}
+          >
+            <div className="webcam-controls">
+              <button
+                className="webcam-control-button"
+                onClick={() => changeWebcamPosition("topLeft")}
+                title="Move to top left"
+              >
+                ↖
+              </button>
+              <button
+                className="webcam-control-button"
+                onClick={() => changeWebcamPosition("topRight")}
+                title="Move to top right"
+              >
+                ↗
+              </button>
+              <button
+                className="webcam-control-button"
+                onClick={() => changeWebcamPosition("bottomLeft")}
+                title="Move to bottom left"
+              >
+                ↙
+              </button>
+              <button
+                className="webcam-control-button"
+                onClick={() => changeWebcamPosition("bottomRight")}
+                title="Move to bottom right"
+              >
+                ↘
+              </button>
+              <button
+                className="webcam-control-button"
+                onClick={changeWebcamSize}
+                title="Change size"
+              >
+                ⚲
+              </button>
+            </div>
+            <video
+              ref={webcamRef}
+              autoPlay
+              playsInline
+              muted
+              className="webcam-video"
+            />
+          </div>
+        )}
         <div className="background-previews">
           {backgrounds.map((bg) => (
             <div
@@ -776,6 +990,12 @@ const VideoEditor: React.FC<VideoEditorProps> = ({
             <strong>Tip:</strong> Use mouse wheel to zoom in/out, click and drag
             to pan when zoomed in.
           </p>
+          {hasWebcam && (
+            <p className="mt-2">
+              <strong>Webcam:</strong> You can toggle the webcam with the button
+              above, and use the controls to change its position and size.
+            </p>
+          )}
         </div>
       </div>
     </div>
