@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import VideoEditor from "../video/VideoEditor";
+import CanvasVideoExporter from "../video/CanvasVideoExporter";
 
 interface VideoClickEvent {
   time: number;
@@ -148,11 +148,20 @@ const VideoModule = () => {
       {isLoading && <p>Loading... {loadingProgress}%</p>}
       {errorMessage && <p className="text-red-500">{errorMessage}</p>}
       {videoURL && (
-        <VideoEditor
-          src={videoURL}
-          fileName={downloadFileName}
-          clickEvents={clickEvents}
-        />
+        <>
+          <div className="mt-10 mb-4">
+            <h2 className="text-lg font-semibold mb-4">Rodoh 🌶️</h2>
+            <p className="text-sm text-gray-500 mb-4">
+              Use the controls below to play the video and export it with
+              beautiful background effects
+            </p>
+            <CanvasVideoExporter
+              videoSrc={videoURL}
+              fileName={downloadFileName}
+              clickEvents={clickEvents}
+            />
+          </div>
+        </>
       )}
     </div>
   );

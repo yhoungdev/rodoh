@@ -2,6 +2,7 @@ import BackgroundModule from "../modules/background";
 import DefaultCard from "@/components/modules/card.tsx";
 import MediaModule from "@/components/modules/media.tsx";
 import ZoomPanModule from "@/components/modules/zoom-pan";
+import ExportSettings from "@/components/modules/export-settings";
 
 function ActionBarTool() {
   return (
@@ -11,6 +12,10 @@ function ActionBarTool() {
 
       <DefaultCard title={" Zoom and Pan 🤚"}>
         <ZoomPanModule />
+      </DefaultCard>
+
+      <DefaultCard title={"Export Settings 🎬"}>
+        <ExportSettings />
       </DefaultCard>
     </div>
   );
