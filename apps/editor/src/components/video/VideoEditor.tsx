@@ -266,16 +266,21 @@ const VideoEditor: React.FC<VideoEditorProps> = ({
       recordedChunksRef.current = [];
 
       const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
+      const ctx = canvas.getContext("2d", {
+        alpha: false,
+        desynchronized: false,
+        willReadFrequently: true,
+      });
       const videoElement = videoRef.current;
 
       canvas.width = videoElement.videoWidth;
       canvas.height = videoElement.videoHeight;
 
-      canvasStreamRef.current = canvas.captureStream();
+      canvasStreamRef.current = canvas.captureStream(60);
 
       const mediaRecorder = new MediaRecorder(canvasStreamRef.current, {
         mimeType: "video/webm;codecs=vp9",
+        videoBitsPerSecond: 8000000,
       });
 
       mediaRecorderRef.current = mediaRecorder;
@@ -292,7 +297,7 @@ const VideoEditor: React.FC<VideoEditorProps> = ({
         });
         const url = URL.createObjectURL(blob);
         setRecordedVideo(url);
-        setNotificationText("Video exported successfully!");
+        setNotificationText("Video saved successfully!");
         setShowNotification(true);
 
         if (notificationTimeoutRef.current) {
@@ -304,138 +309,146 @@ const VideoEditor: React.FC<VideoEditorProps> = ({
         }, 2000);
       };
 
-      videoElement.currentTime = 0;
-      videoElement.play();
-
-      mediaRecorder.start(100);
-      setIsRecording(true);
-      setNotificationText("Recording started...");
-      setShowNotification(true);
-
       const drawFrame = () => {
         if (!ctx || !videoElement || !videoContainerRef.current) return;
 
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if ("requestVideoFrameCallback" in HTMLVideoElement.prototype) {
+          videoElement.requestVideoFrameCallback(drawFrame);
+        } else {
+          requestAnimationFrame(drawFrame);
+        }
 
-        if (
-          selectedBackground.type === "gradient" &&
-          selectedBackground.gradient
-        ) {
-          const gradient = ctx.createLinearGradient(
-            0,
-            0,
-            canvas.width,
-            canvas.height,
-          );
+        if (!videoElement.paused && !videoElement.ended) {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-          const gradientStr = selectedBackground.gradient;
-          const matches = gradientStr.match(/rgba?\([\d\s,.]+\)|#[a-f\d]+/gi);
+          if (
+            selectedBackground.type === "gradient" &&
+            selectedBackground.gradient
+          ) {
+            const gradient = ctx.createLinearGradient(
+              0,
+              0,
+              canvas.width,
+              canvas.height,
+            );
+            const gradientStr = selectedBackground.gradient;
+            const matches = gradientStr.match(/rgba?\([\d\s,.]+\)|#[a-f\d]+/gi);
 
-          if (matches && matches.length >= 2) {
-            gradient.addColorStop(0, matches[0]);
-            gradient.addColorStop(1, matches[1]);
-            ctx.fillStyle = gradient;
+            if (matches && matches.length >= 2) {
+              gradient.addColorStop(0, matches[0]);
+              gradient.addColorStop(1, matches[1]);
+              ctx.fillStyle = gradient;
+            } else {
+              ctx.fillStyle = selectedBackground.color;
+            }
           } else {
             ctx.fillStyle = selectedBackground.color;
           }
-        } else {
-          ctx.fillStyle = selectedBackground.color;
-        }
 
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        ctx.save();
+          ctx.save();
+          ctx.translate(canvas.width / 2, canvas.height / 2);
+          ctx.scale(currentScale, currentScale);
 
-        ctx.translate(canvas.width / 2, canvas.height / 2);
-
-        ctx.scale(currentScale, currentScale);
-
-        if (isZooming) {
-          const offsetX =
-            ((0.5 - zoomPosition.x) * canvas.width) / currentScale;
-          const offsetY =
-            ((0.5 - zoomPosition.y) * canvas.height) / currentScale;
-          ctx.translate(offsetX, offsetY);
-        } else {
-          ctx.translate(-position.x, -position.y);
-        }
-
-        ctx.translate(
-          -canvas.width / 2 / currentScale,
-          -canvas.height / 2 / currentScale,
-        );
-
-        ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
-
-        if (showWebcam && showWebcamInRecording && webcamRef.current) {
-          const webcamEl = webcamRef.current;
-
-          if (webcamEl.videoWidth && webcamEl.videoHeight) {
-            ctx.save();
-            ctx.resetTransform();
-
-            const sizeMultiplier =
-              webcamSize === "small"
-                ? 0.2
-                : webcamSize === "medium"
-                  ? 0.3
-                  : 0.4;
-            const webcamWidth = canvas.width * sizeMultiplier;
-            const webcamHeight =
-              (webcamWidth / webcamEl.videoWidth) * webcamEl.videoHeight;
-
-            let webcamX = 0;
-            let webcamY = 0;
-
-            const padding = 20;
-
-            switch (webcamPosition) {
-              case "topLeft":
-                webcamX = padding;
-                webcamY = padding;
-                break;
-              case "topRight":
-                webcamX = canvas.width - webcamWidth - padding;
-                webcamY = padding;
-                break;
-              case "bottomLeft":
-                webcamX = padding;
-                webcamY = canvas.height - webcamHeight - padding;
-                break;
-              case "bottomRight":
-                webcamX = canvas.width - webcamWidth - padding;
-                webcamY = canvas.height - webcamHeight - padding;
-                break;
-            }
-
-            ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
-            ctx.fillRect(
-              webcamX - 5,
-              webcamY - 5,
-              webcamWidth + 10,
-              webcamHeight + 10,
-            );
-
-            ctx.drawImage(
-              webcamEl,
-              webcamX,
-              webcamY,
-              webcamWidth,
-              webcamHeight,
-            );
-
-            ctx.restore();
+          if (isZooming) {
+            const offsetX =
+              ((0.5 - zoomPosition.x) * canvas.width) / currentScale;
+            const offsetY =
+              ((0.5 - zoomPosition.y) * canvas.height) / currentScale;
+            ctx.translate(offsetX, offsetY);
+          } else {
+            ctx.translate(-position.x, -position.y);
           }
-        }
 
-        ctx.restore();
+          ctx.translate(
+            -canvas.width / 2 / currentScale,
+            -canvas.height / 2 / currentScale,
+          );
+          ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
 
-        if (isRecording) {
-          requestAnimationFrame(drawFrame);
+          if (showWebcam && showWebcamInRecording && webcamRef.current) {
+            const webcamEl = webcamRef.current;
+
+            if (webcamEl.videoWidth && webcamEl.videoHeight) {
+              ctx.save();
+              ctx.resetTransform();
+
+              const sizeMultiplier =
+                webcamSize === "small"
+                  ? 0.2
+                  : webcamSize === "medium"
+                    ? 0.3
+                    : 0.4;
+              const webcamWidth = canvas.width * sizeMultiplier;
+              const webcamHeight =
+                (webcamWidth / webcamEl.videoWidth) * webcamEl.videoHeight;
+
+              let webcamX = 0;
+              let webcamY = 0;
+              const padding = 20;
+
+              switch (webcamPosition) {
+                case "topLeft":
+                  webcamX = padding;
+                  webcamY = padding;
+                  break;
+                case "topRight":
+                  webcamX = canvas.width - webcamWidth - padding;
+                  webcamY = padding;
+                  break;
+                case "bottomLeft":
+                  webcamX = padding;
+                  webcamY = canvas.height - webcamHeight - padding;
+                  break;
+                case "bottomRight":
+                  webcamX = canvas.width - webcamWidth - padding;
+                  webcamY = canvas.height - webcamHeight - padding;
+                  break;
+              }
+
+              ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+              ctx.fillRect(
+                webcamX - 5,
+                webcamY - 5,
+                webcamWidth + 10,
+                webcamHeight + 10,
+              );
+              ctx.drawImage(
+                webcamEl,
+                webcamX,
+                webcamY,
+                webcamWidth,
+                webcamHeight,
+              );
+              ctx.restore();
+            }
+          }
+
+          ctx.restore();
         }
       };
 
-      drawFrame();
+      videoElement.currentTime = 0;
+
+      const startRecordingProcess = () => {
+        drawFrame();
+        mediaRecorder.start();
+        setIsRecording(true);
+        setNotificationText("Recording started...");
+        setShowNotification(true);
+      };
+
+      if (videoElement.readyState >= videoElement.HAVE_ENOUGH_DATA) {
+        await videoElement.play();
+        startRecordingProcess();
+      } else {
+        videoElement.oncanplaythrough = async () => {
+          await videoElement.play();
+          startRecordingProcess();
+          videoElement.oncanplaythrough = null;
+        };
+      }
 
       videoElement.onended = () => {
         stopRecording();
@@ -444,6 +457,7 @@ const VideoEditor: React.FC<VideoEditorProps> = ({
       console.error("Error starting recording:", error);
       setNotificationText("Failed to start recording");
       setShowNotification(true);
+      setIsRecording(false);
     }
   };
 
@@ -840,7 +854,7 @@ const VideoEditor: React.FC<VideoEditorProps> = ({
               onClick={startRecording}
               disabled={isRecording}
             >
-              Record Video
+              Save Pro 💾
             </button>
           )}
           {isRecording && (
@@ -856,7 +870,7 @@ const VideoEditor: React.FC<VideoEditorProps> = ({
               className="editor-action-button download-button"
               onClick={downloadRecordedVideo}
             >
-              Download Recording
+              Download Pro Video 💾
             </button>
           )}
         </div>
