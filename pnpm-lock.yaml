@@ -26,6 +26,9 @@ importers:
       '@ffmpeg/util':
         specifier: ^0.12.2
         version: 0.12.2
+      '@fingerprintjs/fingerprintjs-pro':
+        specifier: ^3.11.9
+        version: 3.11.9
       '@hookform/resolvers':
         specifier: ^5.0.1
         version: 5.0.1(react-hook-form@7.56.3(react@19.1.0))
@@ -764,6 +767,9 @@ packages:
   '@ffmpeg/util@0.12.2':
     resolution: {integrity: sha512-ouyoW+4JB7WxjeZ2y6KpRvB+dLp7Cp4ro8z0HIVpZVCM7AwFlHa0c4R8Y/a4M3wMqATpYKhC7lSFHQ0T11MEDw==}
     engines: {node: '>=18.x'}
+
+  '@fingerprintjs/fingerprintjs-pro@3.11.9':
+    resolution: {integrity: sha512-GTow49I86tBlV/U+edBTLA2dPCDXrfHVsNuTV7a5nZjWFV3Q44Tj6yb5O0GcGT/EHwbSy3UmCO9+PS1ERR+b2g==}
 
   '@hookform/resolvers@5.0.1':
     resolution: {integrity: sha512-u/+Jp83luQNx9AdyW2fIPGY6Y7NG68eN2ZW8FOJYL+M0i4s49+refdJdOp/A9n9HFQtQs3HIDHQvX3ZET2o7YA==}
@@ -5757,6 +5763,10 @@ snapshots:
   '@ffmpeg/types@0.12.4': {}
 
   '@ffmpeg/util@0.12.2': {}
+
+  '@fingerprintjs/fingerprintjs-pro@3.11.9':
+    dependencies:
+      tslib: 2.8.1
 
   '@hookform/resolvers@5.0.1(react-hook-form@7.56.3(react@19.1.0))':
     dependencies:

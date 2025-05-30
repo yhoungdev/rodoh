@@ -1,15 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  Play,
-  Pause,
-  Volume2,
-  VolumeX,
-  Download,
-  Settings,
-  X,
-  Loader,
-} from "lucide-react";
+import { Play, Pause, Volume2, VolumeX, Settings } from "lucide-react";
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
 import "./CanvasVideoExporter.css";
@@ -155,6 +146,7 @@ const CanvasVideoExporter: React.FC<CanvasVideoExporterProps> = ({
     }
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    console.log(canvas.width, canvas.height);
 
     if (
       selectedBackground &&
@@ -271,6 +263,7 @@ const CanvasVideoExporter: React.FC<CanvasVideoExporterProps> = ({
     ctx.shadowBlur = 20;
     ctx.shadowOffsetX = 0;
     ctx.shadowOffsetY = 0;
+    ctx.lineWidth = 10;
 
     ctx.drawImage(
       video,
@@ -295,7 +288,7 @@ const CanvasVideoExporter: React.FC<CanvasVideoExporterProps> = ({
       if (currentClickEvents.length > 0) {
         const recentClick = currentClickEvents[currentClickEvents.length - 1];
 
-        const cursorSize = 20;
+        const cursorSize = 30;
         ctx.fillStyle = "#ffffff";
         ctx.beginPath();
         ctx.arc(
@@ -621,11 +614,10 @@ const CanvasVideoExporter: React.FC<CanvasVideoExporterProps> = ({
 
   return (
     <div className="simple-video-editor">
-      {/* Hidden video element for playback */}
       <video
         ref={videoRef}
         src={videoSrc}
-        className="hidden-video"
+        className="hidden-video "
         onLoadedMetadata={handleLoadedMetadata}
         onTimeUpdate={handleTimeUpdate}
         onEnded={() => setIsPlaying(false)}
@@ -634,15 +626,14 @@ const CanvasVideoExporter: React.FC<CanvasVideoExporterProps> = ({
 
       {/* Canvas container */}
       <div className="canvas-container" data-aspect-ratio={aspectRatio}>
-        {ffmpegLoading && (
-          <div className="loading-indicator">
-            <Loader size={16} className="spinner" />
-            Loading converter...
-          </div>
-        )}
+        {/*{ffmpegLoading && (*/}
+        {/*  <div className="loading-indicator">*/}
+        {/*    <Loader size={16} className="spinner" />*/}
+        {/*    Loading converter...*/}
+        {/*  </div>*/}
+        {/*)}*/}
         <canvas ref={canvasRef} className="video-canvas" />
 
-        {/* Export progress overlay */}
         {isExporting && (
           <div className="export-overlay">
             <div className="export-progress">
@@ -728,9 +719,6 @@ const CanvasVideoExporter: React.FC<CanvasVideoExporterProps> = ({
           disabled={isExporting}
         />
       </div>
-
-      {/* Export panel */}
-      {/* Export panel removed - now in sidebar */}
     </div>
   );
 };

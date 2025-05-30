@@ -12,10 +12,10 @@ function IndexHeader() {
         className="rounded-md"
       />
 
-      <Button>
-        <Share className="mr-2 h-4 w-4" />
-        Export Video
-      </Button>
+      {/*<Button>*/}
+      {/*  <Share className="mr-2 h-4 w-4" />*/}
+      {/*  Export Video*/}
+      {/*</Button>*/}
     </div>
   );
 }
