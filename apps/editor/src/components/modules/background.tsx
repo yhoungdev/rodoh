@@ -23,6 +23,7 @@ export default function BackgroundModule() {
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="gradient">Gradient</TabsTrigger>
           <TabsTrigger value="solid">Solid</TabsTrigger>
+          {/*<TabsTrigger value="solid">Image</TabsTrigger>*/}
         </TabsList>
 
         <TabsContent value="gradient" className="mt-4">
