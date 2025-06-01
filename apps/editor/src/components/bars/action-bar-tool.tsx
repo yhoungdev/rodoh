@@ -7,12 +7,12 @@ import ExportSettings from "@/components/modules/export-settings";
 function ActionBarTool() {
   return (
     <div className="bg-white rounded-md overflow-auto p-4  lg:w-[350px] h-[80vh] space-y-4">
-      <MediaModule />
+      {/*<MediaModule />*/}
       <BackgroundModule />
 
-      <DefaultCard title={" Zoom and Pan 🤚"}>
-        <ZoomPanModule />
-      </DefaultCard>
+      {/*<DefaultCard title={" Zoom and Pan 🤚"}>*/}
+      {/*  <ZoomPanModule />*/}
+      {/*</DefaultCard>*/}
 
       <DefaultCard title={"Export Settings 🎬"}>
         <ExportSettings />

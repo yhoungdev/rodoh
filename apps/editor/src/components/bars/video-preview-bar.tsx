@@ -23,7 +23,6 @@ const VideoModule = () => {
     const loadVideoData = async () => {
       if (!isMounted) return;
 
-      console.log("video-preview-bar: Starting to load video data...");
       setIsLoading(true);
       setErrorMessage(null);
       setLoadingProgress(0);
@@ -149,12 +148,12 @@ const VideoModule = () => {
       {errorMessage && <p className="text-red-500">{errorMessage}</p>}
       {videoURL && (
         <>
-          <div className="mt-10 mb-4">
-            <h2 className="text-lg font-semibold mb-4">Rodoh 🌶️</h2>
-            <p className="text-sm text-gray-500 mb-4">
-              Use the controls below to play the video and export it with
-              beautiful background effects
-            </p>
+          <div className="mt-10 mb-4 ">
+            {/*<p className="text-sm text-gray-500 mb-4">*/}
+            {/*  Use the controls below to play the video and export it with*/}
+            {/*  beautiful background effects*/}
+            {/*</p>*/}
+
             <CanvasVideoExporter
               videoSrc={videoURL}
               fileName={downloadFileName}

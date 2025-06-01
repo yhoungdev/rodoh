@@ -1,7 +1,7 @@
 //@ts-nocheck
 import browser from "webextension-polyfill";
 
-console.log("[Rodoh Extension] Content script loaded!");
+console.info("[Rodoh Extension] Content script loaded!");
 
 browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
   console.log(
@@ -46,7 +46,7 @@ window.addEventListener("load", () => {
   const recordingId = urlParams.get("recordingId");
 
   if (awaiting === "recording" && recordingId) {
-    console.log(
+    console.warn(
       "[Rodoh Extension] Page ready for recording, sending notification to background script",
     );
     browser.runtime
