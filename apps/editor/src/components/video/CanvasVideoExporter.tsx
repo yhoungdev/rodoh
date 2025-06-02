@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { Play, Pause, Volume2, VolumeX, Settings } from "lucide-react";
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
 import "./CanvasVideoExporter.css";
 import useEditorStore from "@/store/editor.store";
 import { applyCanvasBackground } from "@/utils/draw-canvas-color.ts";
+import VideoWaveform from "../modules/VideoWaveform";
+import VideoController from "@/components/modules/video-controller.tsx";
 
 interface CanvasVideoExporterProps {
   videoSrc: string;
@@ -606,71 +607,6 @@ const CanvasVideoExporter: React.FC<CanvasVideoExporterProps> = ({
     }
   };
 
-  const downloadExportedVideo = () => {
-    storeDownloadVideo();
-
-    if (!exportedVideoURL && !recordedBlob) {
-      console.error("No video available to download");
-      return;
-    }
-
-    try {
-      if (recordedBlob) {
-        const extension = exportFormat === "mp4" ? "mp4" : "webm";
-        const mimeType = exportFormat === "mp4" ? "video/mp4" : "video/webm";
-        const url = URL.createObjectURL(
-          new Blob([recordedBlob], { type: mimeType }),
-        );
-
-        const a = document.createElement("a");
-        document.body.appendChild(a);
-        a.style.display = "none";
-        a.href = url;
-        a.download = `${fileName.split(".")[0]}_exported.${extension}`;
-
-        console.log(
-          `Downloading video as ${a.download}, size: ${recordedBlob.size} bytes`,
-        );
-        a.click();
-
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-      } else if (exportedVideoURL) {
-        fetch(exportedVideoURL)
-          .then((response) => response.blob())
-          .then((blob) => {
-            console.log(`Fetched blob from URL, size: ${blob.size} bytes`);
-
-            const extension = exportFormat === "mp4" ? "mp4" : "webm";
-            const url = URL.createObjectURL(blob);
-
-            const a = document.createElement("a");
-            document.body.appendChild(a);
-            a.style.display = "none";
-            a.href = url;
-            a.download = `${fileName.split(".")[0]}_exported.${extension}`;
-            a.click();
-
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
-          })
-          .catch((err) => {
-            console.error("Error fetching blob from URL:", err);
-
-            const a = document.createElement("a");
-            document.body.appendChild(a);
-            a.style.display = "none";
-            a.href = exportedVideoURL;
-            a.download = `${fileName.split(".")[0]}_exported.${exportFormat === "mp4" ? "mp4" : "webm"}`;
-            a.click();
-            document.body.removeChild(a);
-          });
-      }
-    } catch (error) {
-      console.error("Error downloading video:", error);
-    }
-  };
-
   useEffect(() => {
     return () => {
       if (animationFrameRef.current) {
@@ -742,89 +678,18 @@ const CanvasVideoExporter: React.FC<CanvasVideoExporterProps> = ({
           </div>
         )}
       </div>
-
-      <div className="control-bar">
-        <div className="playback-controls">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={togglePlay}
-            disabled={isExporting}
-            className="control-button"
-          >
-            {isPlaying ? <Pause size={20} /> : <Play size={20} />}
-          </Button>
-
-          <div className="time-display">
-            {formatTime(currentTime)} / {formatTime(duration)}
-          </div>
-
-          <div className="flex-spacer"></div>
-
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleMute}
-            disabled={isExporting}
-            className="control-button"
-          >
-            {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
-          </Button>
-
-          <div className="volume-slider">
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.1"
-              value={volume}
-              onChange={handleVolumeChange}
-              disabled={isExporting}
-            />
-          </div>
-
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setShowSettingsPanel(!showSettingsPanel)}
-            className="settings-button"
-            title="Video settings"
-          >
-            <Settings size={20} />
-          </Button>
-
-          <Button
-            variant="default"
-            onClick={startExport}
-            disabled={isExporting || !ffmpegLoaded}
-            className="export-button"
-          >
-            {isExporting ? "Exporting..." : "Export Video"}
-          </Button>
-
-          {exportedVideoURL && (
-            <Button
-              variant="default"
-              onClick={downloadExportedVideo}
-              className="download-button"
-              disabled={isExporting}
-            >
-              Download Video
-            </Button>
-          )}
-        </div>
-
-        <input
-          type="range"
-          className="seek-slider"
-          min="0"
-          max={duration}
-          step="0.01"
-          value={currentTime}
-          onChange={handleSeek}
-          disabled={isExporting}
-        />
-      </div>
+      <VideoController
+        isPlaying={isPlaying}
+        togglePlay={togglePlay}
+        currentTime={currentTime}
+        duration={duration}
+        formatTime={formatTime}
+        isMuted={isMuted}
+        toggleMute={toggleMute}
+        volume={volume}
+        handleVolumeChange={handleVolumeChange}
+        isExporting={isExporting}
+      />
     </div>
   );
 };
