@@ -1,13 +1,5 @@
 import { create } from "zustand";
-import {IEditorState} from "@/types/store.interface.ts";
-
-interface Background {
-  id: string;
-  name: string;
-  color: string;
-  gradient?: string;
-  type: "solid" | "gradient";
-}
+import { IEditorState, Background } from "@/types/store.interface.ts";
 
 const defaultBackground = {
   id: "grad-1",
@@ -16,8 +8,6 @@ const defaultBackground = {
   gradient: "from-rose-500 to-orange-500 bg-gradient-to-br",
   type: "gradient",
 };
-
-
 
 const useEditorStore = create<IEditorState>((set, get) => ({
   editorBg: "bg-gray-200",
@@ -50,9 +40,16 @@ const useEditorStore = create<IEditorState>((set, get) => ({
     set({ conversionProgress: progress }),
   exportedVideoURL: null,
   setExportedVideoURL: (url: string | null) => set({ exportedVideoURL: url }),
+  exportError: null as string | null,
+  setExportError: (error: string | null) => set({ exportError: error }),
 
   startExport: () => {
-    set({ isExporting: true, exportProgress: 0 });
+    set({
+      isExporting: true,
+      exportProgress: 0,
+      exportError: null,
+      exportedVideoURL: null,
+    });
 
     console.log(
       "Export started with format:",
@@ -67,30 +64,58 @@ const useEditorStore = create<IEditorState>((set, get) => ({
         set({ exportProgress: currentProgress + 5 });
       } else {
         clearInterval(interval);
+
+        const fakeBlob = new Blob(["Fake video data"], {
+          type: `video/${get().exportFormat}`,
+        });
+        const blobUrl = URL.createObjectURL(fakeBlob);
+
         set({
           isExporting: false,
-          exportedVideoURL: "blob:https",
+          exportedVideoURL: blobUrl,
         });
+
+        console.log("Export complete. Video URL:", blobUrl);
       }
     }, 500);
   },
+
   stopExport: () => {
     set({
       isExporting: false,
       exportProgress: 0,
       conversionProgress: 0,
+      exportError: null,
     });
   },
+
   downloadExportedVideo: () => {
     const { exportedVideoURL, exportFormat } = get();
     if (exportedVideoURL) {
-      console.log(
-        "Downloading video URL:",
-        exportedVideoURL,
-        "as format:",
-        exportFormat,
-      );
+      try {
+        const link = document.createElement("a");
+        link.href = exportedVideoURL;
+        link.download = `exported-video.${exportFormat}`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } catch (error) {
+        console.error("Error downloading video:", error);
+        set({ exportError: "Failed to download the video. Please try again." });
+      }
+    } else {
+      set({ exportError: "No exported video available for download." });
     }
+  },
+
+  resetExport: () => {
+    set({
+      isExporting: false,
+      exportProgress: 0,
+      conversionProgress: 0,
+      exportError: null,
+      exportedVideoURL: null,
+    });
   },
 }));
 
