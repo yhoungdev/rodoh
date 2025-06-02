@@ -341,11 +341,11 @@ const VideoTimelapse = ({
                   size="icon"
                   onClick={toggleTrimming}
                   disabled={isExporting || !duration}
-                  className={isTrimming ? "bg-red-100" : ""}
+                  className={isTrimming ? "bg-red-900/20" : ""}
                 >
                   <Scissors
                     size={16}
-                    className={isTrimming ? "text-red-500" : ""}
+                    className={isTrimming ? "text-red-400" : ""}
                   />
                 </Button>
               </TooltipTrigger>
@@ -431,11 +431,11 @@ const VideoTimelapse = ({
         </div>
 
         <div className="interval-controls flex items-center space-x-2">
-          <span className="text-xs text-gray-500">Interval:</span>
+          <span className="text-xs text-gray-400">Interval:</span>
           <select
             value={captureInterval}
             onChange={(e) => updateCaptureInterval(Number(e.target.value))}
-            className="text-xs border rounded p-1"
+            className="text-xs bg-background border-border border rounded p-1"
             disabled={isExporting}
           >
             <option value="1">1s</option>
@@ -458,10 +458,9 @@ const VideoTimelapse = ({
         </div>
       </div>
 
-      {/* Timelapse Frame Strip View */}
       <div
         ref={frameStripRef}
-        className="timelapse-strip relative h-20 bg-gray-100 rounded-md overflow-hidden border border-gray-300"
+        className="timelapse-strip relative h-20 bg-gray-900 rounded-md overflow-hidden border border-gray-700"
         onClick={handleTimelineClick}
         onMouseMove={handleTimelineHover}
         onMouseLeave={handleTimelineLeave}
@@ -472,21 +471,19 @@ const VideoTimelapse = ({
           </div>
         ) : (
           <>
-            {/* Time markers */}
-            <div className="time-markers absolute bottom-0 left-0 right-0 h-5 border-t border-gray-300 flex items-center text-xs text-gray-600 z-10 bg-gray-50 bg-opacity-80">
+            <div className="time-markers absolute bottom-0 left-0 right-0 h-5 border-t border-gray-700 flex items-center text-xs text-gray-400 z-10 bg-gray-800/80">
               {getTimeMarkers().map((time, index) => (
                 <div
                   key={index}
                   className="time-marker absolute flex flex-col items-center"
                   style={{ left: getFramePosition(time) }}
                 >
-                  <div className="h-1 w-0.5 bg-gray-400"></div>
+                  <div className="h-1 w-0.5 bg-gray-500"></div>
                   <span className="mt-0.5">{safeFormatTime(time)}</span>
                 </div>
               ))}
             </div>
 
-            {/* Frame thumbnails */}
             <div className="frame-thumbnails absolute top-0 left-0 right-0 bottom-5">
               {timelapseFrames.map((frame, index) => {
                 if (isFrameVisible(frame.time)) {
@@ -495,7 +492,7 @@ const VideoTimelapse = ({
                     <div
                       key={frame.id}
                       className={`frame-thumbnail absolute h-full w-[3px] cursor-pointer transition-all hover:scale-x-125
-                                ${isSelected ? "w-[5px] ring-2 z-20" : ""}`}
+                                ${isSelected ? "w-[5px] ring-2 ring-gray-300 z-20" : ""}`}
                       style={{
                         left: getFramePosition(frame.time),
                         backgroundColor: frame.color,
@@ -506,7 +503,6 @@ const VideoTimelapse = ({
                         jumpToFrame(index);
                       }}
                     >
-                      {/* Frame time label - only show on hover or selection */}
                       <div
                         className={`absolute -top-6 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded p-1
                                     ${isSelected ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}
@@ -520,7 +516,6 @@ const VideoTimelapse = ({
               })}
             </div>
 
-            {/* Current time indicator */}
             <div
               className="current-time-indicator absolute top-0 bottom-0 w-0.5 bg-red-500 z-20"
               style={{ left: getFramePosition(currentTime) }}
@@ -528,7 +523,6 @@ const VideoTimelapse = ({
               <div className="current-time-handle w-3 h-3 bg-red-500 rounded-full absolute top-1/2 -translate-x-1/2 -translate-y-1/2"></div>
             </div>
 
-            {/* Time hover indicator */}
             {hoveredTime !== null && (
               <div
                 className="hover-time-tooltip absolute top-0 px-2 py-1 bg-black text-white text-xs rounded pointer-events-none transform -translate-x-1/2"
@@ -538,26 +532,23 @@ const VideoTimelapse = ({
               </div>
             )}
 
-            {/* Trim region visualization */}
             {isTrimming && duration > 0 && (
               <>
                 <div
-                  className="trim-region absolute h-full bg-blue-200 opacity-40"
+                  className="trim-region absolute h-full bg-blue-900/30 opacity-40"
                   style={{
                     left: getFramePosition(trimStart),
                     width: `${((trimEnd - trimStart) / (duration / timelapseZoom)) * 100}%`,
                   }}
                 />
 
-                {/* Trim start marker */}
                 <div
-                  className="trim-start-marker absolute w-1 h-full bg-blue-500 cursor-ew-resize z-10"
+                  className="trim-start-marker absolute w-1 h-full bg-blue-400 cursor-ew-resize z-10"
                   style={{ left: getFramePosition(trimStart) }}
                 />
 
-                {/* Trim end marker */}
                 <div
-                  className="trim-end-marker absolute w-1 h-full bg-blue-500 cursor-ew-resize z-10"
+                  className="trim-end-marker absolute w-1 h-full bg-blue-400 cursor-ew-resize z-10"
                   style={{ left: getFramePosition(trimEnd) }}
                 />
               </>
@@ -566,23 +557,20 @@ const VideoTimelapse = ({
         )}
       </div>
 
-      {/* Selected Frame Details */}
       {selectedFrameIndex !== null && (
-        <div className="selected-frame-details mt-2 p-2 bg-gray-50 rounded-md border border-gray-200 flex items-center">
+        <div className="selected-frame-details mt-2 p-2 bg-gray-800 rounded-md border border-gray-700 flex items-center">
           <div
             className="w-8 h-8 rounded overflow-hidden mr-2"
             style={{
               backgroundColor: timelapseFrames[selectedFrameIndex].color,
             }}
-          >
-            {/* This would be an actual thumbnail in a real implementation */}
-          </div>
+          ></div>
 
           <div className="flex-1">
-            <div className="text-sm font-medium">
+            <div className="text-sm font-medium text-gray-200">
               Frame {selectedFrameIndex + 1} of {timelapseFrames.length}
             </div>
-            <div className="text-xs text-gray-500">
+            <div className="text-xs text-gray-400">
               Time: {safeFormatTime(timelapseFrames[selectedFrameIndex].time)}
             </div>
           </div>
@@ -610,7 +598,7 @@ const VideoTimelapse = ({
               variant="outline"
               size="sm"
               onClick={() => deleteFrame(selectedFrameIndex)}
-              className="text-red-500 h-7"
+              className="text-red-400 h-7"
             >
               Delete
             </Button>
@@ -618,7 +606,6 @@ const VideoTimelapse = ({
         </div>
       )}
 
-      {/* Trim controls */}
       {isTrimming && duration > 0 && (
         <div className="trim-controls flex flex-wrap gap-2 mt-2">
           <Button

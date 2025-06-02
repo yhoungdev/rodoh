@@ -31,7 +31,7 @@ const NavButton = ({
   <button
     onClick={item.onClick}
     className={cn(
-      "flex items-center w-full gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors text-gray-400 hover:bg-[#1C1C28] hover:text-white",
+      "flex items-center cursor-pointer w-full gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors text-gray-400 hover:bg-[#1C1C28] hover:text-white",
     )}
   >
     <span className="flex-shrink-0 text-2xl">{item.icon}</span>

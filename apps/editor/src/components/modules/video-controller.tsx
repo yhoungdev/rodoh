@@ -53,10 +53,10 @@ const VideoController = ({
   };
 
   return (
-    <div className="control-bar bg-black-900  w-full space-y-4">
+    <div className="control-bar   w-full space-y-4">
       <div className="playback-controls flex items-center space-x-2">
         <Button
-          variant="ghost"
+          variant="primary"
           size="icon"
           onClick={togglePlay}
           disabled={isExporting}
