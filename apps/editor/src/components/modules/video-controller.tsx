@@ -1,7 +1,6 @@
 import React from "react";
-import { Button } from "@/components/ui/button.tsx";
 import { Play, Pause, Volume2, VolumeX } from "lucide-react";
-import { Slider } from "@/components/ui/slider";
+import { Slider, Button } from "@/components/ui";
 import VideoTimelapse from "@/components/modules/video-time-stamp-visulizer.tsx";
 
 interface VideoControllerProps {

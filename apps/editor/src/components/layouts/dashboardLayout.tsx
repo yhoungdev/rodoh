@@ -1,80 +1,77 @@
 import { useState } from "react";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-
+import {
+  Button,
+  ScrollArea,
+  Sheet,
+  SheetTrigger,
+  SheetContent,
+} from "@/components/ui";
+import {
+  NavItem,
+  Navigation,
+} from "@/components/layouts/components/nav-item.tsx";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-
-interface NavItem {
-  icon: React.ReactNode;
-  label: string;
-  onClick?: () => void;
-  badge?: string;
-}
+import { ChevronLeft, ChevronRight, Menu } from "lucide-react";
+import BackgroundModule from "@/components/modules/background.tsx";
+import ExportSettings from "@/components/modules/export-settings.tsx";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
-  navItems?: NavItem[];
+  navItems?: NavItemWithComponent[];
   title?: string;
   pageTitle?: string;
 }
 
-const NavButton = ({
-  item,
-  isCollapsed,
-}: {
-  item: NavItem;
-  isCollapsed: boolean;
-}) => (
-  <button
-    onClick={item.onClick}
-    className={cn(
-      "flex items-center cursor-pointer w-full gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors text-gray-400 hover:bg-[#1C1C28] hover:text-white",
-    )}
-  >
-    <span className="flex-shrink-0 text-2xl">{item.icon}</span>
-    <span
-      className={cn("transition-opacity", isCollapsed && "opacity-0 hidden")}
-    >
-      {item.label}
-    </span>
-    {item.badge && (
-      <span className="ml-auto rounded-full bg-[#1C1C28] px-2 py-0.5 text-xs">
-        {item.badge}
-      </span>
-    )}
-  </button>
-);
-
-const Navigation = ({
-  navItems,
-  isCollapsed,
-}: {
-  navItems: NavItem[];
-  isCollapsed: boolean;
-}) => (
-  <nav className="flex flex-col space-y-1 px-3 py-2">
-    {navItems.map((item) => (
-      <NavButton key={item.label} item={item} isCollapsed={isCollapsed} />
-    ))}
-  </nav>
-);
+interface NavItemWithComponent extends NavItem {
+  component?: React.ReactNode;
+}
 
 export function DashboardLayout({
-  pageTitle,
   children,
   navItems = [
-    { icon: <>🎨</>, label: "Backgrounds", onClick: () => {} },
-    { icon: <>✨</>, label: "Effects", onClick: () => {} },
-    { icon: <>🔍</>, label: "Zoom", onClick: () => {} },
-    { icon: <>✂️</>, label: "Trim / Cut", onClick: () => {} },
-    { icon: <>🔊</>, label: "Audio", onClick: () => {} },
+    {
+      icon: <>🎨</>,
+      label: "Backgrounds",
+      component: <BackgroundModule />,
+    },
+    // {
+    //   icon: <>✨</>,
+    //   label: "Effects",
+    //   component: <div className="p-6">Effects Panel</div>,
+    // },
+    {
+      icon: <>🔍</>,
+      label: "Zoom",
+      component: <div className="p-6">Zoom Controls</div>,
+    },
+    // {
+    //   icon: <>✂️</>,
+    //   label: "Trim / Cut",
+    //   component: <div className="p-6">Trim / Cut Tools</div>,
+    // },
+    {
+      icon: <>🔊</>,
+      label: "Audio",
+      component: <div className="p-6">Audio Settings</div>,
+    },
+    {
+      icon: <> ⚙️ </>,
+      label: "Settings",
+      component: <ExportSettings />,
+    },
   ],
   title = "🪙",
 }: DashboardLayoutProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [openSheet, setOpenSheet] = useState(false);
+  const [selectedComponent, setSelectedComponent] =
+    useState<React.ReactNode>(null);
+
+  const handleNavClick = (component: React.ReactNode) => {
+    setSelectedComponent(component);
+    setOpenSheet(true);
+  };
 
   return (
     <div className="flex min-h-screen bg-[#0B0B14] text-white">
@@ -103,7 +100,13 @@ export function DashboardLayout({
         </div>
 
         <ScrollArea className="flex-1">
-          <Navigation navItems={navItems} isCollapsed={isCollapsed} />
+          <Navigation
+            navItems={navItems.map((item) => ({
+              ...item,
+              onClick: () => handleNavClick(item.component),
+            }))}
+            isCollapsed={isCollapsed}
+          />
         </ScrollArea>
       </aside>
 
@@ -113,36 +116,40 @@ export function DashboardLayout({
             variant="ghost"
             className="lg:hidden fixed left-4 top-4 z-40 text-white hover:bg-[#1C1C28]"
           >
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M3 12H21M3 6H21M3 18H21"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <Menu />
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className=" border-r-0 bg-[#12121A] p-0">
+        <SheetContent side="left" className="border-r-0 bg-[#12121A] p-0">
           <div className="p-6">
             <h2 className="text-xl font-bold bg-gradient-to-r from-fuchsia-500 to-cyan-500 bg-clip-text text-transparent">
               {title}
             </h2>
           </div>
           <ScrollArea className="h-[calc(100vh-5rem)]">
-            <Navigation navItems={navItems} isCollapsed={false} />
+            <Navigation
+              navItems={navItems.map((item) => ({
+                ...item,
+                onClick: () => handleNavClick(item.component),
+              }))}
+              isCollapsed={false}
+            />
           </ScrollArea>
         </SheetContent>
       </Sheet>
 
-      <main className="flex-1 overflow-y-auto bg-[#1d1e22]  lg:w-[calc(100vw-240px)]">
+      <Sheet open={openSheet} onOpenChange={setOpenSheet}>
+        <SheetContent
+          side="right"
+          className="bg-[#12121A] text-white w-full sm:w-[400px]"
+        >
+          <ScrollArea className="h-full">{selectedComponent}</ScrollArea>
+        </SheetContent>
+      </Sheet>
+
+      <main
+        className={`flex-1 overflow-y-auto bg-[#1d1e22] 
+        ${!isCollapsed ? "lg:w-[calc(100vw-240px)]" : "lg:w-[calc(100vw-80px)]"}`}
+      >
         <div className="p-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

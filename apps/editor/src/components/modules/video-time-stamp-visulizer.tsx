@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Button } from "@/components/ui/button.tsx";
 import {
   Scissors,
   Clock,
@@ -16,7 +15,8 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
+  Button,
+} from "@/components/ui";
 import { v4 as uuidv4 } from "uuid";
 
 interface VideoTimelapseProps {
