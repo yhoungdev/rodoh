@@ -1,24 +1,26 @@
 ---
 import Image from 'astro/components/Image.astro';
+
 ---
 
-<section class="hero-section">
-  <div class="container">
+<section class="hero">
+  <div class="container hero__container">
     <div class="content">
-      <h1>
-        Create stunning screen
-        <span class="gradient-text">recordings</span>
-        with zoom & pan magic
-        🪄
+      <h1 class="hero__headline">
+        Capture with precision.
+        <span class="gradient-text">Share with impact.</span>
       </h1>
 
+
+
       <p class="subtitle">
-        Simple, fast, and powerful screen recording for everyone. Zoom, pan, and share in crystal clear quality — zero hassle.
+        Simple, fast, and powerful screen recording for everyone. Zoom, pan, and share in crystal clear quality,  zero hassle.
       </p>
       <div class="cta-buttons">
 		  <Image src='/chrome-web-store.svg'
 				 width="50" height="50"
-		  	alt="Chrome Web Store"/>
+		  	alt="Chrome Web Store"
+            class="chrome_icon"/>
         <a href="#download" class="primary-button">
           Download Extension
         </a>
@@ -29,15 +31,34 @@ import Image from 'astro/components/Image.astro';
 </section>
 
 <style>
-  .hero-section {
-    min-height: 100vh;
+  @import url('../style/index.css');
+
+  @media  screen and (max-width: 650px) {
+      .hero .hero__headline {
+        font-size: 1.9rem;
+      }
+
+    .chrome_icon {
+      display: none;
+    }
+
+    .hero .hero__container {
+      height:  calc(100vh - 20vh) !important;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+  .hero .hero__container {
+
+  }
+
+  .hero .hero__container {
+    height: 100vh;
     display: flex;
     align-items: center;
-    background: linear-gradient(
-      to bottom right,
-      rgba(30, 41, 59, 0.95),
-      rgba(15, 23, 42, 0.95)
-    );
+    justify-content: center;
   }
 
   .container {

@@ -1,0 +1,23 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
+
+.geist-mono-default {
+    font-family: "Geist Mono", monospace;
+    font-optical-sizing: auto;
+
+    font-style: normal;
+}
+
+:root {
+    --background: oklch(0.172 0.009 264);
+    --default-font:  geist-mono-default;
+}
+
+
+
+
+body {
+    background-color: oklch(0.172 0.009 264) !important;
+    font-family: "Geist Mono", monospace;
+}
