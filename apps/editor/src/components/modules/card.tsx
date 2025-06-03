@@ -13,7 +13,7 @@ interface ICardProps {
 
 function DefaultCard({ title, children }: ICardProps) {
   return (
-    <Card>
+    <Card className={"bg-background border-none text-white"}>
       <CardHeader>
         <CardTitle>{title}</CardTitle>
       </CardHeader>

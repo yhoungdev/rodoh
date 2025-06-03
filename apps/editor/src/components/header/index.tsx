@@ -1,6 +1,3 @@
-import { Button } from "@/components/ui/button";
-import { Share } from "lucide-react";
-
 function IndexHeader() {
   return (
     <div className="bg-white w-full mb-2 py-2 px-4 flex items-center justify-between">

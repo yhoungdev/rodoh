@@ -1,59 +1,158 @@
 .simple-video-editor {
+  width: 100%;
   display: flex;
   flex-direction: column;
+  gap: 16px;
+}
+
+.canvas-container {
+  position: relative;
   width: 100%;
-  background-color: #fff;
+  aspect-ratio: 16/9;
+  background: #000;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  position: relative;
-  transition: all 0.3s ease;
+}
+
+.canvas-container[data-aspect-ratio="1:1"] {
+  aspect-ratio: 1/1;
+}
+
+.canvas-container[data-aspect-ratio="4:3"] {
+  aspect-ratio: 4/3;
+}
+
+.canvas-container[data-aspect-ratio="9:16"] {
+  aspect-ratio: 9/16;
+}
+
+.video-canvas {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .hidden-video {
   display: none;
 }
 
-.canvas-container {
-  position: relative;
+.control-bar {
   width: 100%;
-  aspect-ratio: 16 / 9;
-  background-color: #000;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+  background: #1c1c28;
+  border-radius: 8px;
+}
+
+.playback-controls {
+  display: flex;
   align-items: center;
+  gap: 8px;
+}
+
+.control-button {
+  padding: 8px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+
+.time-display {
+  font-family: monospace;
+  font-size: 14px;
+  color: #4b5563;
+  min-width: 80px;
+}
+
+.flex-spacer {
+  flex: 1;
+}
+
+.volume-slider {
+  width: 100px;
+}
+
+.volume-slider input {
+  width: 100%;
+}
+
+.seek-slider {
+  width: 100%;
+  height: 4px;
+  background: #e5e7eb;
+  border-radius: 2px;
+  appearance: none;
+  cursor: pointer;
+}
+
+.seek-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  background: #2563eb;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.export-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.export-progress {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: #374151;
+  border-radius: 4px;
   overflow: hidden;
-  transition: aspect-ratio 0.3s ease;
 }
 
-.canvas-container[data-aspect-ratio="16:9"] {
-  aspect-ratio: 16 / 9;
+.progress-fill {
+  height: 100%;
+  background: #2563eb;
+  transition: width 0.3s ease;
 }
 
-.canvas-container[data-aspect-ratio="4:3"] {
-  aspect-ratio: 4 / 3;
+.progress-text {
+  color: white;
+  font-size: 14px;
+  text-align: center;
 }
 
-.canvas-container[data-aspect-ratio="1:1"] {
-  aspect-ratio: 1 / 1;
+.download-button {
+  margin-left: 12px !important;
+  background-color: #2563eb !important;
+  color: white !important;
+  font-weight: 500 !important;
+  padding: 6px 12px !important;
+  border-radius: 6px !important;
+  transition: background-color 0.2s ease !important;
 }
 
-.canvas-container[data-aspect-ratio="9:16"] {
-  aspect-ratio: 9 / 16;
+.download-button:hover {
+  background-color: #1d4ed8 !important;
 }
 
-.canvas-container[data-aspect-ratio="21:9"] {
-  aspect-ratio: 21 / 9;
-}
-
-.canvas-container[data-aspect-ratio="2:1"] {
-  aspect-ratio: 2 / 1;
-}
-
-.video-canvas {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
+.download-button:disabled {
+  background-color: #94a3b8 !important;
+  cursor: not-allowed !important;
 }
 
 .loading-indicator {
@@ -84,73 +183,6 @@
   }
 }
 
-.export-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 20;
-}
-
-.export-progress {
-  width: 80%;
-  max-width: 350px;
-  background-color: rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  padding: 16px;
-  text-align: center;
-}
-
-.progress-bar {
-  height: 6px;
-  background-color: #374151;
-  border-radius: 3px;
-  overflow: hidden;
-  margin-bottom: 8px;
-}
-
-.progress-fill {
-  height: 100%;
-  background-color: #3b82f6;
-  border-radius: 3px;
-  transition: width 0.3s ease;
-}
-
-.progress-text {
-  color: white;
-  font-size: 0.875rem;
-  font-weight: 500;
-}
-
-.control-bar {
-  display: flex;
-  flex-direction: column;
-  padding: 12px;
-  background-color: #f8f9fa;
-  border-top: 1px solid #e5e7eb;
-}
-
-.playback-controls {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 8px;
-}
-
-.control-button {
-  color: #4b5563;
-}
-
-.control-button:hover {
-  color: #1f2937;
-  background-color: #e5e7eb;
-}
-
 .settings-button {
   color: #4b5563;
 }
@@ -158,86 +190,6 @@
 .settings-button:hover {
   color: #1f2937;
   background-color: #e5e7eb;
-}
-
-.flex-spacer {
-  flex: 1;
-}
-
-.volume-slider {
-  width: 80px;
-  display: flex;
-  align-items: center;
-}
-
-.volume-slider input {
-  width: 100%;
-  height: 4px;
-  -webkit-appearance: none;
-  appearance: none;
-  background: #d1d5db;
-  border-radius: 2px;
-  outline: none;
-}
-
-.volume-slider input::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 12px;
-  height: 12px;
-  background: #3b82f6;
-  border-radius: 50%;
-  cursor: pointer;
-}
-
-.volume-slider input::-moz-range-thumb {
-  width: 12px;
-  height: 12px;
-  background: #3b82f6;
-  border-radius: 50%;
-  cursor: pointer;
-  border: none;
-}
-
-.time-display {
-  font-family: monospace;
-  font-size: 0.875rem;
-  color: #4b5563;
-  min-width: 80px;
-}
-
-.seek-slider {
-  width: 100%;
-  height: 5px;
-  -webkit-appearance: none;
-  appearance: none;
-  background: #d1d5db;
-  border-radius: 2px;
-  outline: none;
-  transition: height 0.15s ease;
-}
-
-.seek-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 14px;
-  height: 14px;
-  background: #3b82f6;
-  border-radius: 50%;
-  cursor: pointer;
-}
-
-.seek-slider::-moz-range-thumb {
-  width: 14px;
-  height: 14px;
-  background: #3b82f6;
-  border-radius: 50%;
-  cursor: pointer;
-  border: none;
-}
-
-.seek-slider:hover {
-  height: 7px;
 }
 
 .settings-panel {
@@ -335,7 +287,6 @@
 }
 
 .export-button,
-.download-button,
 .stop-button {
   width: 100%;
 }

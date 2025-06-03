@@ -51,7 +51,7 @@ const ExportSettings = () => {
   }, []);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-10 px-8 mt-[2em] ">
       <AspectRatio />
       <ConvertVideo ffmpegLoaded={ffmpegLoaded} ffmpegLoading={ffmpegLoading} />
       <div ref={messageRef} className="text-sm text-gray-700"></div>

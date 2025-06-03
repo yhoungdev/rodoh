@@ -2,11 +2,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import DefaultCard from "@/components/modules/card.tsx";
 import useEditorStore from "@/store/editor.store.ts";
-import {
-  backgroundColors,
-  solidColors,
-  backgroundUrls,
-} from "@/utils/colors.ts";
+import { backgroundColors, solidColors } from "@/utils/colors.ts";
 
 export default function BackgroundModule() {
   const { updateEditorBg, selectedBackground, setSelectedBackground } =
@@ -21,8 +17,15 @@ export default function BackgroundModule() {
     <DefaultCard title={"Background 🎨"}>
       <Tabs defaultValue="gradient">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="gradient">Gradient</TabsTrigger>
-          <TabsTrigger value="solid">Solid</TabsTrigger>
+          <TabsTrigger
+            value="gradient"
+            className="data-[state=active]:text-white"
+          >
+            Gradient
+          </TabsTrigger>
+          <TabsTrigger value="solid" className="data-[state=active]:text-white">
+            Solid
+          </TabsTrigger>
           {/*<TabsTrigger value="solid">Image</TabsTrigger>*/}
         </TabsList>
 
