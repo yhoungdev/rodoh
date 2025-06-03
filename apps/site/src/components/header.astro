@@ -1,11 +1,11 @@
 ---
 import Image from "astro/components/Image.astro";
-
-
+import {NAVLINK} from "../data";
 ---
 
 <header class="header">
   <div class="container">
+
     <nav>
       <a href="/" class="logo">
         <Image src="/logo/16.png"  width={50} height={50}
@@ -16,30 +16,94 @@ import Image from "astro/components/Image.astro";
         } />
       </a>
 
-      <!--<div class="nav-links">-->
-      <!--  <a href="#features">Features</a>-->
-      <!--  <a href="#pricing">Pricing</a>-->
-      <!--  -->
-      <!--</div>-->
+      <div class="nav__items">
+        <div class="nav__contents">
+          <div class="nav-links">
 
-      <!--<div class="auth-buttons">-->
-      <!--  <a href="/login" class="btn btn-secondary">Log in</a>-->
-      <!--  <a href="/signup" class="btn btn-primary">Get Started</a>-->
-      <!--</div>-->
+            {
+                NAVLINK.map( ( _ , index: number) =>
+                    <a href={_.path} >{_.label}</a>
+                )
+            }
+
+          </div>
+
+          <!--<div class="auth-buttons">-->
+          <!--  <a href="/login" class="btn btn-secondary">Log in</a>-->
+          <!--  <a href="/signup" class="btn btn-primary">Get Started</a>-->
+          <!--</div>-->
+        </div>
+      </div>
+
+
+      <div class="menu__button">
+        <span class="menu_btn">
+           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu-icon lucide-menu"><path d="M4 12h16"/><path d="M4 18h16"/><path d="M4 6h16"/></svg>
+        </span>
+
+        <span class="close_menu_btn" style="font-size: 2rem" onclick="closeSidebar()">
+          &times;
+        </span>
+      </div>
     </nav>
+
+
   </div>
+
 </header>
 
 <style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+
+  }
+  .close_menu_btn {
+    display: none;
+  }
+
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 5em;
+
+  }
+
+   .nav__items {
+    width: 100%;
+
+   }
+
+   .nav__contents {
+     width: calc(100% - 9em);
+     display: flex;
+
+     justify-content: end;
+     align-items: center;
+     padding: 0 1rem;
+   }
+
+   a {
+     text-decoration: none;
+     color: #c4bdbd !important;
+   }
+
   .header {
     padding: 1rem 0;
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    //background: rgba(255, 255, 255, 0.8);
+
     backdrop-filter: blur(8px);
     z-index: 50;
+  }
+
+  .menu__button {
+    color: #fff;
+    display: none;
   }
 
   nav {
@@ -76,8 +140,97 @@ import Image from "astro/components/Image.astro";
   }
 
   @media (max-width: 768px) {
-    .nav-links {
-      display: none;
+
+    .nav__items {
+      width: 0;
+      background: rgba(0, 0, 0, 0.85);
+      position: fixed;
+      bottom: 0;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      height: 100vh;
+      color: #fff !important;
+      overflow: hidden;
+      transition: all 0.3s ease;
     }
+
+    .nav-links , .auth-buttons {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      margin-left: 3em;
+    }
+
+    .nav__items .nav__contents {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 2rem;
+      height: 100%;
+      padding: 0;
+    }
+
+    .nav-links {
+    }
+
+    .menu__button {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 1.5rem;
+      color: #fff;
+      //background: rgba(45, 55, 72, 0.32);
+      padding: 0.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+
+    }
+
+    .menu__button:hover {
+      background: transparent !important;
+    }
+
+    .menu__button:active {
+      background: transparent !important;
+    }
+
+    .auth-buttons {
+
+    }
+
   }
 </style>
+
+<script client:idle>
+  const isDocument = typeof  window.document !== "undefined";
+
+  const ELEMENTS = {
+    menu_icon: document.querySelector('.menu_btn'),
+    nav_item: document.querySelector('.nav__items'),
+    close_menu_btn: document.querySelector('.close_menu_btn')
+  }
+
+  const { menu_icon , nav_item , close_menu_btn} = ELEMENTS || {};
+
+  console.log(nav_item);
+
+  const handleSidebarOpen = () => {
+     nav_item.style.width = '60%';
+     menu_icon.style.display = 'none';
+     close_menu_btn.style.display = 'block';
+  };
+
+  const closeSidebar = () => {
+    nav_item.style.width = '0';
+    menu_icon.style.display = 'block';
+    close_menu_btn.style.display = 'none';
+  }
+
+  menu_icon.addEventListener('click', () => handleSidebarOpen());
+
+
+</script>
