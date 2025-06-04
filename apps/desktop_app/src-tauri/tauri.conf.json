@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Screen Recorder",
+  "productName": "desktop_app",
   "version": "0.1.0",
-  "identifier": "com.native.app",
+  "identifier": "com.desktop_app.app",
   "build": {
     "beforeDevCommand": "pnpm dev",
     "devUrl": "http://localhost:1420",
@@ -12,12 +12,9 @@
   "app": {
     "windows": [
       {
-        "title": "Screen Recorder",
-        "width": 1200,
-        "height": 800,
-        "minWidth": 800,
-        "minHeight": 600,
-        "resizable": true
+        "title": "desktop_app",
+        "width": 800,
+        "height": 600
       }
     ],
     "security": {
@@ -34,23 +31,5 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ]
-  },
-  "plugins": {
-    "fs": {
-      "scope": {
-        "allow": ["**"]
-      }
-    },
-    "shell": {
-      "scope": {
-        "allow": [
-          {
-            "name": "ffmpeg",
-            "cmd": "ffmpeg",
-            "args": true
-          }
-        ]
-      }
-    }
   }
 }
