@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { IEditorState, Background } from "@/types/store.interface.ts";
+import { IEditorState } from "@repo/types/index.ts";
 
 const defaultBackground = {
   id: "grad-1",

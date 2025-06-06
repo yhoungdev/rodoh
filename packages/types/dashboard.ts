@@ -1,13 +1,5 @@
-interface IDashboardProps {
+interface IDashboardProps {}
 
-}
+interface IDashboardSidebar {}
 
-
-interface IDashboardSidebar {
-
-}
-
-export type {
-    IDashboardSidebar,
-    IDashboardProps
-}
+export type { IDashboardSidebar, IDashboardProps };

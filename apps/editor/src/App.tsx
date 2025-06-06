@@ -1,6 +1,6 @@
 import "./App.css";
 import DefaultRouterIndex from "@/routes";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarProvider } from "./components/ui/sidebar";
 
 function App() {
   return (

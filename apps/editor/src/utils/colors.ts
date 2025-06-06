@@ -1,4 +1,4 @@
-import { ICanvasPropsStyle } from "@/types";
+import { ICanvasPropsStyle } from "@rodoh/types/index.ts";
 
 const backgroundColors: ICanvasPropsStyle[] = [
   {

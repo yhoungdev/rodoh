@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button.tsx";
+import { Button } from "@repo/shared/components/index";
 import { Download, FileVideo, Settings, Video } from "lucide-react";
 import useEditorStore from "@/store/editor.store";
 

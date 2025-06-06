@@ -5,7 +5,7 @@ import {
   Sheet,
   SheetTrigger,
   SheetContent,
-} from "@/components/ui";
+} from "@repo/shared/components/index";
 import {
   NavItem,
   Navigation,

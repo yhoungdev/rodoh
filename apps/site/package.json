@@ -1,5 +1,5 @@
 {
-  "name": "evolved-equinox",
+  "name": "web",
   "type": "module",
   "version": "0.0.1",
   "scripts": {
@@ -9,6 +9,7 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@repo/shared": "workspace:*",
     "astro": "^5.6.1"
   }
 }
