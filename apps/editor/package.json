@@ -76,7 +76,7 @@
   },
   "devDependencies": {
     "@repo/types": "workspace:*",
-    "@repo/shared": "workspace:*",
+    "@repo/ui": "workspace:*",
     "@eslint/js": "^9.21.0",
     "@types/node": "^22.14.1",
     "@types/react": "^19.0.10",

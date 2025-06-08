@@ -5,7 +5,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@repo/shared/components/index";
+} from "@repo/ui/src";
 
 import { ReactNode } from "react";
 

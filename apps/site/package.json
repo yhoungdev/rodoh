@@ -9,7 +9,6 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@repo/shared": "workspace:*",
     "astro": "^5.6.1"
   }
 }

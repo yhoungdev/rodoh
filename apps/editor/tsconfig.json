@@ -8,7 +8,7 @@
     "allowImportingTsExtensions": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*" ],
+      "@/*": ["./src/*"],
       "@/shared/*": ["./packages/shared/src/components/*"]
     }
   }

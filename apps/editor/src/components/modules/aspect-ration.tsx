@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button.tsx";
+import { Button } from "@repo/ui/src";
 import { useEditorStore } from "@/store";
 
 const AspectRatio = () => {

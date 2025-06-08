@@ -1,4 +1,4 @@
-import { Button } from "@repo/shared/components/index";
+import { Button } from "@repo/ui/src";
 import { Download, FileVideo, Settings, Video } from "lucide-react";
 import useEditorStore from "@/store/editor.store";
 

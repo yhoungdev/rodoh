@@ -16,7 +16,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
   Button,
-} from "@/components/ui";
+} from "@repo/ui/src";
 import { v4 as uuidv4 } from "uuid";
 
 interface VideoTimelapseProps {

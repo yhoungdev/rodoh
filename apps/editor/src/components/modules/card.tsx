@@ -1,10 +1,5 @@
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card.tsx";
-import { Separator } from "@/components/ui/separator.tsx";
+import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/src";
+import { Separator } from "@repo/ui/src";
 
 interface ICardProps {
   children?: React.ReactNode;

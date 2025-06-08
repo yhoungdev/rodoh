@@ -1,11 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@repo/ui/src";
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
 import "./CanvasVideoExporter.css";
 import useEditorStore from "@/store/editor.store";
 import { applyCanvasBackground } from "@/utils/draw-canvas-color.ts";
-import VideoWaveform from "../modules/VideoWaveform";
 import VideoController from "@/components/modules/video-controller.tsx";
 
 interface CanvasVideoExporterProps {
