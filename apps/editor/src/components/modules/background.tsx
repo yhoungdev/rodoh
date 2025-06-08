@@ -1,4 +1,4 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@repo/ui/src";
 import { cn } from "@/lib/utils";
 import DefaultCard from "@/components/modules/card.tsx";
 import useEditorStore from "@/store/editor.store.ts";

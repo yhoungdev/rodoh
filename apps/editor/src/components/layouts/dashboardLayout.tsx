@@ -5,7 +5,7 @@ import {
   Sheet,
   SheetTrigger,
   SheetContent,
-} from "@/components/ui";
+} from "@repo/ui/src";
 import {
   NavItem,
   Navigation,
@@ -147,7 +147,7 @@ export function DashboardLayout({
       </Sheet>
 
       <main
-        className={`flex-1 overflow-y-auto bg-[#1d1e22] 
+        className={`flex-1 overflow-y-auto bg-[#1d1e22]
         ${!isCollapsed ? "lg:w-[calc(100vw-240px)]" : "lg:w-[calc(100vw-80px)]"}`}
       >
         <div className="p-6">
